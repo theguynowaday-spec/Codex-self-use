@@ -1453,3 +1453,49 @@ API,
 не будет пытаться решать вики-задачи как обычные фронтенд-задачи.
 
 Конец файла.
+
+------------------------------------------------------------
+CSS + Fandom operational notes (from review feedback)
+------------------------------------------------------------
+
+CSS placement on Fandom/MediaWiki (important):
+- `MediaWiki:Common.css` for shared styles.
+- `MediaWiki:Fandomdesktop.css` for desktop-specific layer.
+- `MediaWiki:Fandommobile.css` for mobile layer.
+- `User:Name/common.css` for user-specific styling.
+
+Loading/order notes:
+- On desktop, `Common.css` is loaded before `Fandomdesktop.css`.
+- If `@import` is used in `Common.css`, it should be placed at the top.
+
+Recommended architecture:
+- JS should add/toggle classes.
+- CSS should control visual presentation.
+- Avoid depending on fragile internal HTML structures.
+- Prefer stable entry points and your own state classes (e.g. `.is-open`, `.is-hidden`).
+
+Suggested CSS knowledge checklist for Codex:
+- selector types (class/id/attribute/descendant/pseudo-class)
+- cascade + specificity + order
+- box model
+- typography
+- layout choices for older-compatible environments
+- state styles and responsive behavior
+
+Script review improvements to remember for ES5 bots:
+1) Avoid unnecessary custom headers like `X-Requested-With` in cross-origin browser scenarios,
+   because they can trigger preflight and fail depending on CORS policy.
+2) For CORS, keep `origin` in query URI where required; do not assume edit requests from
+   cross-origin browser context will behave like same-origin authenticated sessions.
+3) `starttimestamp` should represent the start of edit flow, not just immediate pre-submit time.
+4) Add login/assertion checks in bot flows to verify authenticated state.
+5) Retry logic should classify errors:
+   - retry temporary failures (network/429/transient)
+   - avoid blind retry for permanent failures (invalid token/permissions/missing pages)
+6) Respect `Retry-After` and rate limits when present.
+
+Operational split to remember:
+- Browser helper script != external bot client.
+- Same-origin editing and external bot editing have different constraints.
+
+End of CSS + operational notes.

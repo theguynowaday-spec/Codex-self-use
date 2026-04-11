@@ -1,0 +1,108 @@
+CSS for Fandom/MediaWiki (Practical Knowledge)
+==============================================
+
+Purpose
+-------
+This file is a practical CSS note focused on Fandom/MediaWiki usage.
+It is not only "how CSS works", but also where CSS lives in wiki environments,
+how it interacts with JS/Lua/wikitext, and what patterns are safer.
+
+1) Where CSS lives on Fandom/MediaWiki
+--------------------------------------
+- `MediaWiki:Common.css` — shared site styles.
+- `MediaWiki:Fandomdesktop.css` — Fandom desktop-specific layer.
+- `MediaWiki:Fandommobile.css` — Fandom mobile-specific layer.
+- `User:Name/common.css` — personal styles.
+
+Important practical note:
+- On desktop Fandom, `Common.css` and `Fandomdesktop.css` are combined;
+  `Common.css` is loaded first.
+- If using `@import` in `Common.css`, keep it at the top.
+
+2) Core CSS knowledge Codex should know
+---------------------------------------
+- Selectors: class, id, attribute selectors, descendants, pseudo-classes.
+- Cascade and specificity.
+- Box model: margin / border / padding / content.
+- Typography: font-size, line-height, font-weight, letter-spacing.
+- Layout: display, position, float; flex as concept (watch old environments).
+- States: `:hover`, `:focus`, `:active`, and JS-driven state classes.
+- Responsive basics: width limits, wrapping, compact mobile overrides.
+
+3) Wiki-specific CSS usage
+--------------------------
+Common targets:
+- infoboxes
+- warning blocks
+- tables and lists
+- side panels
+- small UI helpers in wiki content areas
+
+Typical goals:
+- cleaner readability
+- consistent spacing
+- predictable block sizing
+- avoiding visual noise
+
+4) Safe architecture: JS adds classes, CSS styles them
+------------------------------------------------------
+Rationale:
+- Keep behavior in JS and visual style in CSS.
+- Avoid over-reliance on fragile HTML internals.
+- For MediaWiki front-end work, rely on stable access points (`mw` object,
+  predictable IDs/classes where possible), then style your own class hooks.
+
+Example ES5 pattern:
+
+(function () {
+    "use strict";
+
+    function addClass(el, className) {
+        if (!el) return;
+        if ((" " + el.className + " ").indexOf(" " + className + " ") === -1) {
+            el.className = el.className ? (el.className + " " + className) : className;
+        }
+    }
+
+    var box = document.getElementById("mw-content-text");
+    addClass(box, "tbx-callout");
+}());
+
+.tbx-callout {
+    padding: 16px;
+    margin: 12px 0;
+    border: 1px solid #d7dbe7;
+    border-radius: 12px;
+    background: #fafbff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    line-height: 1.55;
+}
+
+5) ImportJS and CSS/JS layering on Fandom
+-----------------------------------------
+- `MediaWiki:ImportJS` is a list page for script loading (not a JS source file itself).
+- It can load local wiki scripts and Dev Wiki scripts.
+- Useful for modular script organization and controlled loading.
+- Keep base logic in shared scripts, then apply small context-specific layers.
+
+6) Practical review checklist for CSS changes
+---------------------------------------------
+Before publishing to shared pages:
+- Is this site-wide (`Common.css`) or user-only (`User:.../common.css`)?
+- Could this break unrelated pages/templates?
+- Are selectors too broad?
+- Is specificity manageable without overusing `!important`?
+- Does it remain readable on mobile widths?
+- Does it conflict with desktop/mobile split layers?
+
+7) Notes for bot/script integration
+-----------------------------------
+- Keep JS resilient and class-driven.
+- Avoid hard-coding fragile DOM paths.
+- If JS needs to toggle UI state, prefer classes like:
+  - `.is-open`
+  - `.is-hidden`
+  - `.is-active`
+- Let CSS decide appearance for those states.
+
+End of file.
