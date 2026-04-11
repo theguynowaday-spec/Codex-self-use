@@ -947,3 +947,251 @@ div:hover {
 }
 
 End of Part 2.
+
+------------------------------------------------------------
+PART 3 — Animations, Tooltips, Images, Variables, Media Queries, Flexbox
+------------------------------------------------------------
+
+56) CSS Animations
+Core pieces:
+- `@keyframes`
+- `animation-name`
+- `animation-duration`
+- optional timing props: delay, iteration-count, direction, fill-mode, timing-function, play-state
+
+Examples:
+@keyframes myAnimation {
+  from { background-color: red; }
+  to { background-color: yellow; }
+}
+
+div {
+  animation-name: myAnimation;
+  animation-duration: 4s;
+}
+
+@keyframes myAnimation {
+  0%   {background-color:red; left:0; top:0;}
+  25%  {background-color:yellow; left:200px; top:0;}
+  50%  {background-color:blue; left:200px; top:200px;}
+  75%  {background-color:green; left:0; top:200px;}
+  100% {background-color:red; left:0; top:0;}
+}
+
+animation shorthand example:
+div {
+  animation: myAnimation 5s linear 2s infinite alternate;
+}
+
+57) Tooltip Patterns
+Basic structure:
+- container `.tooltip` is `position: relative`
+- text `.tooltiptext` is `position: absolute` and hidden by default
+- show on hover
+
+Example:
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+Fade-in tooltip:
+.tooltiptext {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.tooltip:hover .tooltiptext {
+  opacity: 1;
+}
+
+Arrow via pseudo-element:
+.tooltiptext::after {
+  content: " ";
+  position: absolute;
+  border-width: 5px;
+  border-style: solid;
+}
+
+58) Image Styling + Effects
+Common patterns:
+- rounded images (`border-radius`)
+- thumbnail style (`border`, `padding`)
+- hover shadow
+- hover flip (`transform: scaleX(-1)`)
+- responsive gallery with media queries
+
+59) Responsive Modal Image Idea
+- CSS handles modal layout and animation
+- JS toggles visibility and caption
+- mobile breakpoints adjust gallery columns
+
+60) Image Filters (`filter`)
+Supported effects:
+- blur
+- brightness
+- contrast
+- drop-shadow
+- grayscale
+- hue-rotate
+- invert
+- opacity
+- saturate
+- sepia
+
+Examples:
+#img1 { filter: blur(2px); }
+#img2 { filter: brightness(150%); }
+#img3 { filter: grayscale(1); }
+
+61) Image Shapes
+- `clip-path` with `circle()`, `ellipse()`, `polygon()`
+- `shape-outside` for text wrapping around shaped floats
+
+Example:
+img {
+  float: left;
+  clip-path: circle(40%);
+  shape-outside: circle(45%);
+}
+
+62) object-fit / object-position
+`object-fit` values:
+- fill
+- cover
+- contain
+- none
+- scale-down
+
+Example:
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 80% 100%;
+}
+
+63) CSS Masking (overview)
+- `mask-image` with PNG/SVG/gradients
+- `mask-repeat`, `mask-position`, `mask-size`
+- gradient masks and SVG `<mask>` workflows
+- consider `-webkit-mask-image` for compatibility where needed
+
+64) Button Styling Patterns
+Core props:
+- background-color, color, border, padding, border-radius
+- box-shadow, font-size, cursor, text-decoration
+
+Patterns:
+- hover states with transitions
+- disabled state via opacity + not-allowed cursor
+- width presets (fixed, %, full width)
+- horizontal/vertical button groups (flex-based)
+
+65) Pagination and Breadcrumbs
+- flex-based pagination list
+- `.active` page highlight
+- `.disabled` page controls with `pointer-events: none`
+- breadcrumb separators via `li + li::before`
+
+66) Multi-column Layout
+Key properties:
+- `column-count`
+- `column-gap`
+- `column-rule` (+ style/width/color)
+- `column-span`
+- `column-width`
+
+67) User Interface Properties
+- `resize` (horizontal / vertical / both / none)
+- `outline-offset`
+
+Examples:
+textarea { resize: none; }
+div { resize: both; overflow: auto; }
+
+68) CSS Variables and var()
+Global and local variable usage:
+:root {
+  --primary-bg-color: #1e90ff;
+  --primary-color: #ffffff;
+}
+
+.container {
+  color: var(--primary-bg-color);
+  background-color: var(--primary-color);
+}
+
+Local override:
+.container .note {
+  --primary-bg-color: red;
+  border: 1px solid var(--primary-bg-color);
+}
+
+Variables in media queries:
+@media screen and (min-width: 450px) {
+  .container {
+    --fontsize: 40px;
+  }
+}
+
+69) `@property` Rule (typed custom properties)
+Example:
+@property --myColor {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: lightgray;
+}
+
+Benefits:
+- type checking
+- default fallback
+- explicit inheritance behavior
+
+70) box-sizing Best Practice
+Default model adds padding+border beyond declared width/height.
+Recommended baseline:
+* {
+  box-sizing: border-box;
+}
+
+71) Media Queries
+Syntax:
+@media [not] media-type and (feature: value) { ... }
+
+Common features:
+- min-width / max-width
+- min-height / max-height
+- orientation
+- resolution
+- prefers-color-scheme
+
+Example:
+@media screen and (min-width: 480px) and (max-width: 768px) {
+  body { background-color: lightgreen; }
+}
+
+72) Flexbox (quick map)
+Flex container properties:
+- display: flex / inline-flex
+- flex-direction
+- flex-wrap
+- flex-flow
+- justify-content
+- align-items
+- align-content
+
+Flex item properties:
+- order
+- flex-grow
+- flex-shrink
+- flex-basis
+- flex (shorthand)
+- align-self
+
+True centering with flex:
+.flex-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+End of Part 3.
