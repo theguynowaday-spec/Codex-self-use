@@ -1,108 +1,683 @@
-CSS for Fandom/MediaWiki (Practical Knowledge)
-==============================================
+CSS Knowledge Pack (Part 1) — Foundations + Practical Notes
+============================================================
 
-Purpose
--------
-This file is a practical CSS note focused on Fandom/MediaWiki usage.
-It is not only "how CSS works", but also where CSS lives in wiki environments,
-how it interacts with JS/Lua/wikitext, and what patterns are safer.
+This file consolidates foundational CSS learning content and practical notes
+for web and wiki environments.
 
-1) Where CSS lives on Fandom/MediaWiki
---------------------------------------
-- `MediaWiki:Common.css` — shared site styles.
-- `MediaWiki:Fandomdesktop.css` — Fandom desktop-specific layer.
-- `MediaWiki:Fandommobile.css` — Fandom mobile-specific layer.
-- `User:Name/common.css` — personal styles.
+------------------------------------------------------------
+1) CSS Introduction
+------------------------------------------------------------
+What is CSS?
+- CSS is the language we use to style a web page.
+- CSS stands for Cascading Style Sheets.
+- CSS describes how HTML elements are displayed on screen, paper, or other media.
+- CSS saves work by controlling layout for many pages at once.
+- External stylesheets are stored in `.css` files.
 
-Important practical note:
-- On desktop Fandom, `Common.css` and `Fandomdesktop.css` are combined;
-  `Common.css` is loaded first.
-- If using `@import` in `Common.css`, keep it at the top.
+Why Use CSS?
+- Define design, layout, and device/screen-size variations.
+- Reuse one stylesheet across many pages.
 
-2) Core CSS knowledge Codex should know
----------------------------------------
-- Selectors: class, id, attribute selectors, descendants, pseudo-classes.
-- Cascade and specificity.
-- Box model: margin / border / padding / content.
-- Typography: font-size, line-height, font-weight, letter-spacing.
-- Layout: display, position, float; flex as concept (watch old environments).
-- States: `:hover`, `:focus`, `:active`, and JS-driven state classes.
-- Responsive basics: width limits, wrapping, compact mobile overrides.
-
-3) Wiki-specific CSS usage
---------------------------
-Common targets:
-- infoboxes
-- warning blocks
-- tables and lists
-- side panels
-- small UI helpers in wiki content areas
-
-Typical goals:
-- cleaner readability
-- consistent spacing
-- predictable block sizing
-- avoiding visual noise
-
-4) Safe architecture: JS adds classes, CSS styles them
-------------------------------------------------------
-Rationale:
-- Keep behavior in JS and visual style in CSS.
-- Avoid over-reliance on fragile HTML internals.
-- For MediaWiki front-end work, rely on stable access points (`mw` object,
-  predictable IDs/classes where possible), then style your own class hooks.
-
-Example ES5 pattern:
-
-(function () {
-    "use strict";
-
-    function addClass(el, className) {
-        if (!el) return;
-        if ((" " + el.className + " ").indexOf(" " + className + " ") === -1) {
-            el.className = el.className ? (el.className + " " + className) : className;
-        }
-    }
-
-    var box = document.getElementById("mw-content-text");
-    addClass(box, "tbx-callout");
-}());
-
-.tbx-callout {
-    padding: 16px;
-    margin: 12px 0;
-    border: 1px solid #d7dbe7;
-    border-radius: 12px;
-    background: #fafbff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    line-height: 1.55;
+Example:
+body {
+  background-color: lightblue;
 }
 
-5) ImportJS and CSS/JS layering on Fandom
------------------------------------------
-- `MediaWiki:ImportJS` is a list page for script loading (not a JS source file itself).
-- It can load local wiki scripts and Dev Wiki scripts.
-- Useful for modular script organization and controlled loading.
-- Keep base logic in shared scripts, then apply small context-specific layers.
+h1 {
+  color: white;
+  text-align: center;
+}
 
-6) Practical review checklist for CSS changes
----------------------------------------------
-Before publishing to shared pages:
-- Is this site-wide (`Common.css`) or user-only (`User:.../common.css`)?
-- Could this break unrelated pages/templates?
-- Are selectors too broad?
-- Is specificity manageable without overusing `!important`?
-- Does it remain readable on mobile widths?
-- Does it conflict with desktop/mobile split layers?
+p {
+  font-family: verdana;
+  font-size: 20px;
+}
 
-7) Notes for bot/script integration
------------------------------------
-- Keep JS resilient and class-driven.
-- Avoid hard-coding fragile DOM paths.
-- If JS needs to toggle UI state, prefer classes like:
-  - `.is-open`
-  - `.is-hidden`
-  - `.is-active`
-- Let CSS decide appearance for those states.
+------------------------------------------------------------
+2) CSS Syntax
+------------------------------------------------------------
+A CSS rule has:
+- selector
+- declaration block
+
+Each declaration has:
+- property
+- value
+
+Example:
+p {
+  color: red;
+  text-align: center;
+}
+
+Notes:
+- declarations are separated by semicolons
+- declaration blocks use curly braces `{}`
+
+------------------------------------------------------------
+3) CSS Selectors (basic map)
+------------------------------------------------------------
+Selector groups:
+1. Simple selectors (name, id, class)
+2. Combinator selectors
+3. Pseudo-class selectors
+4. Pseudo-element selectors
+5. Attribute selectors
+
+Element selector:
+p {
+  text-align: center;
+  color: red;
+}
+
+ID selector:
+#para1 {
+  text-align: center;
+  color: red;
+}
+
+------------------------------------------------------------
+4) How to Add CSS
+------------------------------------------------------------
+Three ways:
+1. External CSS (`<link rel="stylesheet" href="mystyle.css">`)
+2. Internal CSS (`<style>` in `<head>`)
+3. Inline CSS (`style="..."`)
+
+External example (HTML):
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="mystyle.css">
+</head>
+<body>
+<h1>This is a heading</h1>
+<p>This is a paragraph.</p>
+</body>
+</html>
+
+External file example (`mystyle.css`):
+body {
+  background-color: lightblue;
+}
+
+h1 {
+  color: navy;
+  margin-left: 20px;
+}
+
+Important:
+- no space between value and unit: `20px` (not `20 px`)
+
+------------------------------------------------------------
+5) CSS Comments
+------------------------------------------------------------
+CSS comment syntax:
+/* comment */
+
+Examples:
+/* single-line */
+
+p {
+  color: red; /* inline comment */
+}
+
+/* multi-line
+   comment */
+
+Notes:
+- Comments are ignored by browsers.
+- HTML comments (`<!-- -->`) and CSS comments can both appear in one document.
+
+------------------------------------------------------------
+6) Common CSS Errors
+------------------------------------------------------------
+Typical mistakes:
+1. Missing semicolons
+2. Invalid property names
+3. Invalid values
+4. Unclosed braces
+5. Extra colons/braces
+
+Examples:
+.bad {
+  color: red
+  background-color: yellow;
+}
+
+.bad {
+  colr: blue;
+  font-size: 16px;
+}
+
+.bad {
+  width: -100px;
+  color: green;
+}
+
+.bad {
+  padding: 20px;
+  margin: 10px;
+
+.bad {
+  color:: blue;
+}
+
+Tips:
+- Use syntax-highlighting editors
+- Use linters/validators
+- Write/test in small chunks
+
+------------------------------------------------------------
+7) CSS Colors
+------------------------------------------------------------
+Ways to define colors:
+- color names (e.g. red)
+- HEX (e.g. #ff0000)
+- RGB (e.g. rgb(255,0,0))
+- HSL / RGBA / HSLA
+
+Examples:
+h1 {
+  background-color: DodgerBlue;
+}
+
+p {
+  background-color: Tomato;
+}
+
+------------------------------------------------------------
+8) CSS Backgrounds
+------------------------------------------------------------
+Key background properties:
+- background-color
+- background-image
+- background-repeat
+- background-attachment
+- background-position
+- background (shorthand)
+
+Opacity:
+- `opacity: 0.0` to `1.0`
+- applies to element and children
+
+Example:
+div {
+  background-color: green;
+  opacity: 0.3;
+}
+
+------------------------------------------------------------
+9) CSS Borders
+------------------------------------------------------------
+Border control:
+- style
+- width
+- color
+
+`border-style` values:
+- dotted, dashed, solid, double
+- groove, ridge, inset, outset
+- none, hidden
+
+Example:
+p.solid { border-style: solid; }
+p.mix { border-style: dotted dashed solid double; }
+
+------------------------------------------------------------
+10) Margins
+------------------------------------------------------------
+Space outside border.
+
+Properties:
+- margin-top
+- margin-right
+- margin-bottom
+- margin-left
+
+Values:
+- auto
+- length
+- %
+- inherit
+- negative values are allowed
+
+Example:
+p {
+  margin-top: 100px;
+  margin-right: 150px;
+  margin-bottom: 100px;
+  margin-left: 80px;
+}
+
+------------------------------------------------------------
+11) Padding
+------------------------------------------------------------
+Space inside border.
+
+Properties:
+- padding-top
+- padding-right
+- padding-bottom
+- padding-left
+
+Values:
+- length
+- %
+- inherit
+- negative values are NOT allowed
+
+Example:
+div {
+  padding-top: 50px;
+  padding-right: 30px;
+  padding-bottom: 50px;
+  padding-left: 80px;
+}
+
+------------------------------------------------------------
+12) Height and Width
+------------------------------------------------------------
+`height` and `width` set content box size.
+
+Values:
+- auto
+- length
+- %
+- initial
+- inherit
+
+Example:
+div {
+  height: 200px;
+  width: 50%;
+  background-color: powderblue;
+}
+
+------------------------------------------------------------
+13) CSS Box Model
+------------------------------------------------------------
+Each element box has:
+1. content
+2. padding
+3. border
+4. margin
+
+Total width formula:
+width + left padding + right padding + left border + right border
+
+Total height formula:
+height + top padding + bottom padding + top border + bottom border
+
+Note:
+- margin affects occupied page space, but is outside element box dimensions.
+
+------------------------------------------------------------
+14) CSS Outline
+------------------------------------------------------------
+Outline is drawn OUTSIDE border.
+
+Properties:
+- outline-style
+- outline-color
+- outline-width
+- outline-offset
+- outline (shorthand)
+
+Notes:
+- outline can overlap content
+- outline does not affect element width/height calculations
+
+------------------------------------------------------------
+15) Text Formatting and Text Color
+------------------------------------------------------------
+Text properties (examples):
+- color
+- text-align
+- text-transform
+- text-indent
+- letter-spacing
+- text-decoration
+
+Example:
+body {
+  background-color: lightgrey;
+  color: blue;
+}
+
+h1 {
+  background-color: black;
+  color: white;
+}
+
+------------------------------------------------------------
+16) Fonts
+------------------------------------------------------------
+`font-family` should include fallback chain.
+
+Examples:
+.p1 { font-family: "Times New Roman", Times, serif; }
+.p2 { font-family: Arial, Helvetica, sans-serif; }
+.p3 { font-family: "Lucida Console", "Courier New", monospace; }
+
+Generic families:
+- serif
+- sans-serif
+- monospace
+- cursive
+- fantasy
+
+------------------------------------------------------------
+17) Icons (Font Awesome concept)
+------------------------------------------------------------
+- Icon libraries can be styled with CSS (size, color, shadow).
+- Usually loaded via `<script>` in `<head>`.
+- Then icon classes used in elements like `<i>` or `<span>`.
+
+------------------------------------------------------------
+18) Links
+------------------------------------------------------------
+Common link states:
+- :link
+- :visited
+- :hover
+- :active
+
+Order rules:
+- :hover after :link and :visited
+- :active after :hover
+
+Example:
+a:link { color: red; }
+a:visited { color: green; }
+a:hover { color: hotpink; }
+a:active { color: blue; }
+
+`text-decoration` often used to remove underline.
+
+------------------------------------------------------------
+19) Lists
+------------------------------------------------------------
+List properties:
+- list-style-type
+- list-style-image
+- list-style-position
+- list-style (shorthand)
+
+Examples:
+ul.a { list-style-type: circle; }
+ol.d { list-style-type: upper-roman; }
+
+Remove markers:
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+------------------------------------------------------------
+20) Tables
+------------------------------------------------------------
+Basic border example:
+table, th, td {
+  border: 1px solid;
+}
+
+Useful properties:
+- border-collapse (separate/collapse)
+- border-spacing (works with separate)
+- padding for th/td
+
+Examples:
+table { border-collapse: collapse; }
+th, td { padding: 10px; }
+
+------------------------------------------------------------
+21) display
+------------------------------------------------------------
+Common values:
+- inline
+- block
+- inline-block
+- none
+- flex
+- grid
+- contents
+
+Examples:
+li { display: inline; }
+span { display: block; }
+a { display: block; }
+
+Horizontal menu with inline-block:
+.nav li {
+  display: inline-block;
+  font-size: 18px;
+  padding: 15px;
+}
+
+------------------------------------------------------------
+22) max-width
+------------------------------------------------------------
+`max-width` prevents element from exceeding given width,
+improving responsiveness.
+
+Example:
+.ex2 {
+  max-width: 500px;
+  margin: auto;
+  border: 3px solid #73AD21;
+}
+
+------------------------------------------------------------
+23) position
+------------------------------------------------------------
+Values:
+- static
+- relative
+- fixed
+- absolute
+- sticky
+
+Position offsets:
+- top
+- right
+- bottom
+- left
+
+Example:
+.relative {
+  position: relative;
+  left: 30px;
+  border: 3px solid #73AD21;
+}
+
+------------------------------------------------------------
+24) z-index
+------------------------------------------------------------
+Defines stacking order for positioned elements.
+- higher z-index renders above lower
+- without z-index, source order influences stacking
+
+Example:
+img {
+  position: absolute;
+  z-index: -1;
+}
+
+------------------------------------------------------------
+25) overflow
+------------------------------------------------------------
+Values:
+- visible
+- hidden
+- scroll
+- auto
+
+Example:
+div {
+  overflow: auto;
+}
+
+------------------------------------------------------------
+26) float
+------------------------------------------------------------
+Values:
+- left
+- right
+- none
+- inherit
+
+Common usage:
+- wrapping text around images
+
+Example:
+img { float: right; }
+
+------------------------------------------------------------
+27) Center alignment
+------------------------------------------------------------
+Horizontal methods:
+- margin: auto
+- text-align: center
+- float/position variants
+
+Vertical methods:
+- flex align-items
+- grid place-items
+- position + transform
+
+Example:
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+------------------------------------------------------------
+28) Combinators
+------------------------------------------------------------
+Types:
+- descendant (space)
+- child (>)
+- next sibling (+)
+- subsequent sibling (~)
+
+Examples:
+div p { background-color: yellow; }
+div > p { background-color: yellow; }
+
+------------------------------------------------------------
+29) Pseudo-classes
+------------------------------------------------------------
+Syntax:
+selector:pseudo-class {
+  /* styles */
+}
+
+Common interactive:
+- :hover
+- :focus
+- :active
+- :link
+- :visited
+
+Common structural:
+- :first-child
+- :last-child
+- :nth-child(n)
+- :lang()
+
+------------------------------------------------------------
+30) Pseudo-elements
+------------------------------------------------------------
+Syntax:
+selector::pseudo-element {
+  /* styles */
+}
+
+Examples:
+- ::first-line
+- ::first-letter
+- ::before
+- ::after
+- ::marker
+- ::selection
+- ::backdrop
+
+------------------------------------------------------------
+31) Opacity and transparent backgrounds
+------------------------------------------------------------
+- `opacity` affects element + children.
+- To keep text fully visible, use RGBA background instead of parent opacity.
+
+Example:
+div {
+  background: rgba(4, 170, 109, 0.3);
+}
+
+------------------------------------------------------------
+32) Image sprites
+------------------------------------------------------------
+Sprite = many small images in one file.
+Benefits:
+- fewer HTTP requests
+- lower bandwidth overhead
+
+Core properties:
+- background-image
+- background-position
+
+------------------------------------------------------------
+33) Attribute selectors
+------------------------------------------------------------
+Forms:
+- [attribute]
+- [attribute="value"]
+- [attribute~="value"]
+- [attribute|="value"]
+- [attribute^="value"]
+- [attribute$="value"]
+- [attribute*="value"]
+
+Example:
+a[target="_blank"] {
+  background-color: yellow;
+}
+
+Case-insensitive option:
+[attribute="value" i]
+
+------------------------------------------------------------
+34) Forms styling (starter)
+------------------------------------------------------------
+CSS can significantly improve form readability/usability.
+Typical targets:
+- label
+- input
+- select
+- textarea
+- button
+
+Starter wrapper example:
+.form-shell {
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  padding: 40px;
+}
+
+------------------------------------------------------------
+35) Fandom/MediaWiki practical bridge notes
+------------------------------------------------------------
+For wiki environments:
+- CSS often lives on wiki pages (not local project files):
+  - `MediaWiki:Common.css`
+  - `MediaWiki:Fandomdesktop.css`
+  - `MediaWiki:Fandommobile.css`
+  - `User:Name/common.css`
+- Keep selectors scoped to avoid site-wide regressions.
+- Prefer class-driven architecture:
+  - JS toggles classes
+  - CSS defines appearance
 
 End of file.
