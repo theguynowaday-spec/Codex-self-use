@@ -1195,3 +1195,377 @@ True centering with flex:
 }
 
 End of Part 3.
+
+------------------------------------------------------------
+PART 4 — Final pack: Flex items + responsive flexbox + CSS references
+------------------------------------------------------------
+
+The CSS Flex Items Properties
+The following table lists all the CSS Flex Items properties:
+
+Property	Description
+align-self	Specifies the alignment for a flex item (overrides the flex container's align-items property)
+flex	A shorthand property for the flex-grow, flex-shrink, and the flex-basis properties
+flex-basis	Specifies the initial length of a flex item
+flex-grow	Specifies how much a flex item will grow relative to the rest of the flex items inside the container
+flex-shrink	Specifies how much a flex item will shrink relative to the rest of the flex items inside the container
+order	Specifies the order of the flex items inside the container
+
+CSS Responsive Flexbox
+Responsive Flexbox
+You learned from the CSS Media Queries chapter that you can use media queries to create different layouts for different screen sizes and devices.
+
+For example, if you want to create a three-column layout for large screen sizes, and a one-column layout for small screen sizes (such as phones), you can change the flex-direction from row to column at a specific breakpoint (600px in the example below):
+
+Example
+.flex-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-item {
+  background-color: #f1f1f1;
+  padding: 10px;
+  font-size: 30px;
+  text-align: center;
+  width: 100%;
+}
+
+/* Make a one column-layout instead of three-column layout */
+@media (max-width: 600px) {
+  .flex-container {
+    flex-direction: column;
+  }
+}
+
+Another way is to change the percentage of the flex property of the flex items to create different layouts for different screen sizes. Note that we also have to include flex-wrap: wrap; on the flex container for this example to work:
+
+Example
+.flex-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.flex-item {
+  background-color: #f1f1f1;
+  padding: 10px;
+  text-align: center;
+  font-size: 30px;
+  flex: 33.3%;
+}
+
+/* Make a one column-layout instead of a three-column layout */
+@media (max-width: 600px) {
+  .flex-item {
+    flex: 100%;
+  }
+}
+
+Responsive Image Gallery using Flexbox
+Here, we use media queries together with flexbox to create a responsive image gallery.
+
+Responsive Website using Flexbox
+Use flexbox to create a responsive website, containing a flexible navigation bar and flexible content.
+
+!!!! CSS REFERENCES !!!! 
+Just to reminder:
+<div id="cssproperties">
+
+<h2>A</h2>
+<table class="ws-table-all notranslate">
+  <tbody><tr>
+    <td><a href="css4_pr_accent-color.php">accent-color</a></td>
+    <td>Specifies an accent color for user-interface controls</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_align-content.php">align-content</a></td>
+    <td>Specifies the alignment between the lines inside a flexible container when the items do not use all available space</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_align-items.php">align-items</a></td>
+    <td>Specifies the alignment for items inside a flexible container</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_align-self.php">align-self</a></td>
+    <td>Specifies the alignment for selected items inside a flexible container</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_all.php">all</a></td>
+    <td>Resets all properties (except unicode-bidi and direction)</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_animation.php">animation</a></td>
+    <td>A shorthand property for all the <em>animation-*</em> properties</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_animation-delay.php">animation-delay</a></td>
+    <td>Specifies a delay for the start of an animation</td>
+    </tr>
+  <tr>
+    <td><a href="css3_pr_animation-direction.php">animation-direction</a></td>
+    <td>Specifies whether an animation should be played forward, backward or 
+    in alternate cycles</td>
+    </tr>
+  <tr>
+    <td><a href="css3_pr_animation-duration.php">animation-duration</a></td>
+    <td>Specifies how long an animation should take to complete one cycle</td>
+    </tr>
+  <tr>
+    <td><a href="css3_pr_animation-fill-mode.php">animation-fill-mode</a></td>
+    <td>Specifies a style for the element when the animation is not playing (before 
+    it starts, after it ends, or both)</td>
+    </tr>
+  <tr>
+    <td><a href="css3_pr_animation-iteration-count.php">animation-iteration-count</a></td>
+    <td>Specifies the number of times an animation should be played</td>
+    </tr>
+  <tr>
+    <td><a href="css3_pr_animation-name.php">animation-name</a></td>
+    <td>Specifies a name for the @keyframes animation</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_animation-play-state.php">animation-play-state</a></td>
+    <td>Specifies whether the animation is running or paused</td>
+    </tr>
+  <tr>
+    <td><a href="css3_pr_animation-timing-function.php">animation-timing-function</a></td>
+    <td>Specifies the speed curve of an animation</td>
+  </tr>
+  <tr>
+    <td><a href="css_pr_aspect-ratio.php">aspect-ratio</a></td>
+    <td>Specifies preferred aspect ratio of an element</td>
+  </tr>
+</tbody></table>
+
+<h2>B</h2>
+<table class="ws-table-all notranslate">
+  <tbody><tr>
+    <td><a href="css3_pr_backdrop-filter.php">backdrop-filter</a></td>
+    <td>Defines a graphical effect to the area behind an element</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_backface-visibility.php">backface-visibility</a></td>
+    <td>Defines whether or not the back face of an element should be visible when facing the user</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_background.php">background</a></td>
+    <td>A shorthand property for all the <em>background-*</em> properties</td>
+  </tr>
+  <tr>
+    <td><a href="pr_background-attachment.php">background-attachment</a></td>
+    <td>Sets whether a background image scrolls with the rest of the page, or is fixed</td>
+  </tr>
+  <tr>
+    <td><a href="pr_background-blend-mode.php">background-blend-mode</a></td>
+    <td>Specifies the blending mode of each background layer (color/image)</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_background-clip.php">background-clip</a></td>
+    <td>Defines how far the background (color or image) should extend within an 
+    element</td>
+  </tr>
+  <tr>
+    <td><a href="pr_background-color.php">background-color</a></td>
+    <td>Specifies the background color of an element</td>
+  </tr>
+  <tr>
+    <td><a href="pr_background-image.php">background-image</a></td>
+    <td>Specifies one or more background images for an element</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_background-origin.php">background-origin</a></td>
+    <td>Specifies the origin position of a background image</td>
+  </tr>
+  <tr>
+    <td><a href="pr_background-position.php">background-position</a></td>
+    <td>Specifies the position of a background image</td>
+  </tr>
+  <tr>
+    <td><a href="pr_border.php">border</a></td>
+    <td>A shorthand property for <em>border-width, border-style</em> and <em>border-color</em></td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_border-image.php">border-image</a></td>
+    <td>A shorthand property for all the <em>border-image-*</em> properties</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_border-radius.php">border-radius</a></td>
+    <td>A shorthand property for the four <em>border-*-radius</em> properties</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_box-shadow.php">box-shadow</a></td>
+    <td>Attaches one or more shadows to an element</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_box-sizing.php">box-sizing</a></td>
+    <td>Defines how the width and height of an element are calculated</td>
+  </tr>
+</tbody></table>
+
+<h2>C</h2>
+<table class="ws-table-all notranslate">
+  <tbody><tr>
+    <td><a href="pr_tab_caption-side.php">caption-side</a></td>
+    <td>Specifies the placement of a table caption</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_caret-color.php">caret-color</a></td>
+    <td>Specifies the color of the cursor (caret) in editable elements</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_clip-path.php">clip-path</a></td>
+    <td>Clips an element to a basic shape or to an SVG source</td>
+  </tr>
+  <tr>
+    <td><a href="pr_text_color.php">color</a></td>
+    <td>Sets the color of text</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_column-count.php">column-count</a></td>
+    <td>Specifies the number of columns an element should be divided into</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_column-gap.php">column-gap</a></td>
+    <td>Specifies the gap between the columns</td>
+  </tr>
+  <tr>
+    <td><a href="pr_gen_content.php">content</a></td>
+    <td>Used with :before/:after to insert generated content</td>
+  </tr>
+  <tr>
+    <td><a href="pr_class_cursor.php">cursor</a></td>
+    <td>Specifies pointer cursor behavior</td>
+  </tr>
+</tbody></table>
+
+<h2>D</h2>
+<table class="ws-table-all notranslate"><tbody><tr><td><a href="pr_class_display.php">display</a></td><td>Specifies how an element should be displayed</td></tr></tbody></table>
+
+<h2>F</h2>
+<table class="ws-table-all notranslate">
+  <tbody><tr><td><a href="css3_pr_filter.php">filter</a></td><td>Defines visual effects on an element</td></tr>
+  <tr><td><a href="css3_pr_flex.php">flex</a></td><td>Shorthand for flex-grow, flex-shrink, flex-basis</td></tr>
+  <tr><td><a href="css3_pr_flex-basis.php">flex-basis</a></td><td>Specifies initial length of a flexible item</td></tr>
+  <tr><td><a href="css3_pr_flex-direction.php">flex-direction</a></td><td>Specifies direction of flexible items</td></tr>
+  <tr><td><a href="css3_pr_flex-flow.php">flex-flow</a></td><td>Shorthand for flex-direction and flex-wrap</td></tr>
+  <tr><td><a href="css3_pr_flex-grow.php">flex-grow</a></td><td>Specifies how much the item will grow</td></tr>
+  <tr><td><a href="css3_pr_flex-shrink.php">flex-shrink</a></td><td>Specifies how the item will shrink</td></tr>
+  <tr><td><a href="css3_pr_flex-wrap.php">flex-wrap</a></td><td>Specifies whether flexible items should wrap</td></tr>
+  <tr><td><a href="pr_class_float.php">float</a></td><td>Specifies whether an element should float</td></tr>
+  <tr><td><a href="atrule_font-face.php">@font-face</a></td><td>Specifies a custom font to use</td></tr>
+  <tr><td><a href="pr_font_font-size.php">font-size</a></td><td>Specifies font size of text</td></tr>
+</tbody></table>
+
+<h2>G</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="css3_pr_gap.php">gap</a></td><td>Shorthand for row-gap and column-gap</td></tr>
+<tr><td><a href="pr_grid.php">grid</a></td><td>Shorthand for grid properties</td></tr>
+</tbody></table>
+
+<h2>H</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="pr_dim_height.php">height</a></td><td>Sets the height of an element</td></tr>
+</tbody></table>
+
+<h2>I</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="atrule_import.php">@import</a></td><td>Import stylesheet into another stylesheet</td></tr>
+<tr><td><a href="css_pr_inline-size.php">inline-size</a></td><td>Specifies size in inline direction</td></tr>
+</tbody></table>
+
+<h2>J</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="css3_pr_justify-content.php">justify-content</a></td><td>Alignment inside flexible container</td></tr>
+</tbody></table>
+
+<h2>K</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="atrule_keyframes.php">@keyframes</a></td><td>Controls animation steps</td></tr>
+</tbody></table>
+
+<h2>L</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="pr_pos_left.php">left</a></td><td>Specifies left position of positioned element</td></tr>
+<tr><td><a href="pr_dim_line-height.php">line-height</a></td><td>Sets line height</td></tr>
+<tr><td><a href="pr_list-style.php">list-style</a></td><td>Sets all list properties in one declaration</td></tr>
+</tbody></table>
+
+<h2>M</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="pr_margin.php">margin</a></td><td>Sets all margin properties in one declaration</td></tr>
+<tr><td><a href="css3_pr_mask.php">mask</a></td><td>Shorthand for mask properties</td></tr>
+<tr><td><a href="pr_dim_max-width.php">max-width</a></td><td>Sets maximum width</td></tr>
+<tr><td><a href="atrule_media.php">@media</a></td><td>Style rules for different devices/sizes</td></tr>
+<tr><td><a href="pr_dim_min-width.php">min-width</a></td><td>Sets minimum width</td></tr>
+</tbody></table>
+
+<h2>O</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="css3_pr_object-fit.php">object-fit</a></td><td>How replaced content should fit its box</td></tr>
+<tr><td><a href="css3_pr_object-position.php">object-position</a></td><td>Alignment of replaced element inside its box</td></tr>
+<tr><td><a href="css3_pr_opacity.php">opacity</a></td><td>Sets opacity level</td></tr>
+<tr><td><a href="css3_pr_order.php">order</a></td><td>Sets order of flexible item</td></tr>
+<tr><td><a href="pr_outline.php">outline</a></td><td>Shorthand for outline properties</td></tr>
+<tr><td><a href="css3_pr_outline-offset.php">outline-offset</a></td><td>Offsets an outline beyond border edge</td></tr>
+<tr><td><a href="pr_pos_overflow.php">overflow</a></td><td>Specifies overflow behavior</td></tr>
+</tbody></table>
+
+<h2>P</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="pr_padding.php">padding</a></td><td>Shorthand for padding properties</td></tr>
+<tr><td><a href="css3_pr_perspective.php">perspective</a></td><td>Gives a 3D-positioned element perspective</td></tr>
+<tr><td><a href="css3_pr_pointer-events.php">pointer-events</a></td><td>Defines whether element reacts to pointer events</td></tr>
+<tr><td><a href="pr_class_position.php">position</a></td><td>Specifies positioning method</td></tr>
+<tr><td><a href="atrule_property.php">@property</a></td><td>Defines custom CSS properties in stylesheet</td></tr>
+</tbody></table>
+
+<h2>R</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="css3_pr_resize.php">resize</a></td><td>Defines if/how element is resizable</td></tr>
+<tr><td><a href="pr_pos_right.php">right</a></td><td>Specifies right position</td></tr>
+<tr><td><a href="css3_pr_row-gap.php">row-gap</a></td><td>Specifies gap between grid rows</td></tr>
+</tbody></table>
+
+<h2>S</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="pr_scroll-behavior.php">scroll-behavior</a></td><td>Smooth scroll behavior</td></tr>
+<tr><td><a href="css_pr_shape-outside.php">shape-outside</a></td><td>Defines wrapping shape for inline content</td></tr>
+<tr><td><a href="atrule_supports.php">@supports</a></td><td>Tests browser support for feature</td></tr>
+</tbody></table>
+
+<h2>T</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="pr_text_text-align.php">text-align</a></td><td>Horizontal text alignment</td></tr>
+<tr><td><a href="pr_text_text-decoration.php">text-decoration</a></td><td>Text decoration</td></tr>
+<tr><td><a href="css3_pr_text-overflow.php">text-overflow</a></td><td>Behavior when text overflows</td></tr>
+<tr><td><a href="css3_pr_text-shadow.php">text-shadow</a></td><td>Adds shadow to text</td></tr>
+<tr><td><a href="css3_pr_transform.php">transform</a></td><td>2D/3D transformation</td></tr>
+<tr><td><a href="css3_pr_transition.php">transition</a></td><td>Shorthand for transition properties</td></tr>
+</tbody></table>
+
+<h2>U</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="css3_pr_user-select.php">user-select</a></td><td>Specifies whether text can be selected</td></tr>
+</tbody></table>
+
+<h2>V</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="pr_class_visibility.php">visibility</a></td><td>Specifies visibility of an element</td></tr>
+</tbody></table>
+
+<h2>W</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="pr_dim_width.php">width</a></td><td>Sets width of an element</td></tr>
+<tr><td><a href="css3_pr_word-break.php">word-break</a></td><td>Specifies word breaking behavior</td></tr>
+<tr><td><a href="css3_pr_word-wrap.php">word-wrap</a></td><td>Allows long words to wrap</td></tr>
+<tr><td><a href="css3_pr_writing-mode.php">writing-mode</a></td><td>Horizontal/vertical text flow</td></tr>
+</tbody></table>
+
+<h2>Z</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="pr_pos_z-index.php">z-index</a></td><td>Sets stack order of positioned element</td></tr>
+<tr><td><a href="css3_pr_zoom.php">zoom</a></td><td>Specifies zoom factor for an element</td></tr>
+</tbody></table>
+</div>
+
+Note: Full A–Z references snapshot added as text training material for CSS recall.
