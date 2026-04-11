@@ -1,0 +1,987 @@
+----- Дополнение для тебя: много ES5-кодовых примеров для JS + MediaWiki/Fandom -----
+=============================================================================
+
+Этот файл — не теория, а набор практических примеров, которые можно брать за основу
+при написании скриптов, user scripts и внешних ботов на JavaScript ES5.
+
+Цель:
+- показать разные типы задач;
+- показать безопасные шаблоны;
+- показать структуру кода;
+- показать работу с MediaWiki API;
+- показать ES5-стиль без modern syntax.
+
+Везде ниже предполагается:
+- ES5;
+- XMLHttpRequest;
+- JSON.parse / JSON.stringify;
+- encodeURIComponent;
+- аккуратная обработка ошибок.
+
+------------------------------------------------------------
+1. БАЗОВЫЙ ШАБЛОН AJAX-ФУНКЦИИ ДЛЯ ES5
+------------------------------------------------------------
+
+Этот шаблон пригодится почти везде.
+
+```js
+function requestJson(options, onSuccess, onError) {
+    var xhr = new XMLHttpRequest();
+    var method = options.method || "GET";
+    var url = options.url;
+    var body = options.body || null;
+    var headers = options.headers || {};
+
+    xhr.open(method, url, true);
+
+    for (var h in headers) {
+        if (headers.hasOwnProperty(h)) {
+            xhr.setRequestHeader(h, headers[h]);
+        }
+    }
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState !== 4) {
+            return;
+        }
+
+        if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+                onSuccess(JSON.parse(xhr.responseText), xhr);
+            } catch (e) {
+                if (onError) onError(e, xhr);
+            }
+        } else {
+            if (onError) onError(new Error("HTTP " + xhr.status), xhr);
+        }
+    };
+
+    xhr.onerror = function () {
+        if (onError) onError(new Error("Network error"), xhr);
+    };
+
+    xhr.send(body);
+}
+
+Что важно:
+
+headers задаются через цикл;
+JSON парсится внутри try/catch;
+есть обработка HTTP-ошибки и сетевой ошибки.
+БАЗОВЫЙ GET-ЗАПРОС К MEDIAWIKI API
+function apiGetJson(url, onSuccess, onError) {
+    requestJson({
+        method: "GET",
+        url: url,
+        headers: {}
+    }, onSuccess, onError);
+}
+
+var url = "https://example.fandom.com/api.php?action=query&meta=siteinfo&format=json";
+apiGetJson(url, function (data) {
+    console.log(data);
+}, function (err) {
+    console.log("Ошибка:", err.message);
+});
+
+Зачем это нужно:
+
+быстро проверять API;
+получать info о вики;
+тестировать соединение.
+ДЕЛАЕМ QUERY С ПАРАМЕТРАМИ
+
+Чтобы не собирать URL вручную, полезно делать helper.
+
+function toQueryString(params) {
+    var parts = [];
+    var key;
+
+    for (key in params) {
+        if (params.hasOwnProperty(key) && params[key] !== undefined && params[key] !== null) {
+            parts.push(encodeURIComponent(key) + "=" + encodeURIComponent(params[key]));
+        }
+    }
+
+    return parts.join("&");
+}
+
+function buildApiUrl(base, params) {
+    return base + "?" + toQueryString(params);
+}
+
+var apiUrl = buildApiUrl("https://example.fandom.com/api.php", {
+    action: "query",
+    meta: "siteinfo",
+    format: "json"
+});
+
+Полезно, потому что:
+
+не забываешь кодировать значения;
+легко добавлять новые параметры;
+код читается лучше.
+ПОЛУЧЕНИЕ ИНФОРМАЦИИ О ВИКИ
+var url = buildApiUrl("https://example.fandom.com/api.php", {
+    action: "query",
+    meta: "siteinfo",
+    siprop: "general|namespaces|namespacealiases",
+    format: "json"
+});
+
+apiGetJson(url, function (data) {
+    if (data && data.query && data.query.general) {
+        console.log("Название вики:", data.query.general.sitename);
+        console.log("Main page:", data.query.general.mainpage);
+    }
+}, function (err) {
+    console.log("Ошибка:", err.message);
+});
+
+Что это даёт:
+
+имя вики;
+базовые настройки;
+namespaces.
+ПОЛУЧЕНИЕ СТРАНИЦЫ ПО ЗАГОЛОВКУ
+function getPageByTitle(baseApi, title, onSuccess, onError) {
+    var url = buildApiUrl(baseApi, {
+        action: "query",
+        prop: "revisions",
+        titles: title,
+        rvprop: "content|timestamp|ids",
+        format: "json"
+    });
+
+    apiGetJson(url, function (data) {
+        if (!data || !data.query || !data.query.pages) {
+            onError(new Error("Invalid API response"));
+            return;
+        }
+
+        onSuccess(data);
+    }, onError);
+}
+
+getPageByTitle("https://example.fandom.com/api.php", "Main Page", function (data) {
+    console.log(data);
+}, function (err) {
+    console.log(err.message);
+});
+
+Практика:
+
+сначала запрашиваешь данные;
+потом вытаскиваешь нужную страницу из query.pages.
+ДОСТАЁМ РЕВИЗИЮ И WIKITEXT
+function extractPageContent(data) {
+    var pages = data.query.pages;
+    var pageId;
+    var page;
+    var revs;
+    var text = "";
+
+    for (pageId in pages) {
+        if (pages.hasOwnProperty(pageId)) {
+            page = pages[pageId];
+
+            if (page.revisions && page.revisions.length) {
+                revs = page.revisions[0];
+                text = revs["*"] || revs.slots && revs.slots.main && revs.slots.main["*"] || "";
+                return {
+                    title: page.title,
+                    pageid: page.pageid,
+                    revid: revs.revid,
+                    timestamp: revs.timestamp,
+                    text: text
+                };
+            }
+        }
+    }
+
+    return null;
+}
+
+Зачем так:
+
+разные вики и конфигурации могут отдавать контент по-разному;
+лучше проверять несколько вариантов;
+код не должен падать, если поле отсутствует.
+ПЕРЕДЕЛЫВАЕМ WIKITEXT В ПРОСТЫЙ ТЕКСТ
+function stripWikiMarkup(text) {
+    if (!text) return "";
+
+    text = text.replace(/\{\{[^{}]*\}\}/g, "");
+    text = text.replace(/\[\[(?:[^|\]]*\|)?([^\]]+)\]\]/g, "$1");
+    text = text.replace(/'''/g, "");
+    text = text.replace(/''/g, "");
+    text = text.replace(/<!--[\s\S]*?-->/g, "");
+    text = text.replace(/^\s+|\s+$/g, "");
+
+    return text;
+}
+
+var plain = stripWikiMarkup("'''Hello''' [[Page|label]] <!-- comment -->");
+console.log(plain);
+
+Это упрощённый вариант. Он не идеален, но полезен для:
+
+быстрой индексации;
+чернового анализа;
+фильтрации текста.
+ПОЛУЧЕНИЕ HTML ЧЕРЕЗ PARSE
+function parsePage(baseApi, title, onSuccess, onError) {
+    var url = buildApiUrl(baseApi, {
+        action: "parse",
+        page: title,
+        prop: "text|categories|links",
+        format: "json"
+    });
+
+    apiGetJson(url, function (data) {
+        if (data && data.parse) {
+            onSuccess(data.parse);
+            return;
+        }
+        onError(new Error("No parse data"));
+    }, onError);
+}
+
+Когда полезно:
+
+надо увидеть итоговый HTML;
+надо проверить блоки и шаблоны;
+надо искать элементы в уже отрендеренном тексте.
+ПОИСК СТРАНИЦ
+function searchPages(baseApi, query, onSuccess, onError) {
+    var url = buildApiUrl(baseApi, {
+        action: "query",
+        list: "search",
+        srsearch: query,
+        srlimit: 10,
+        format: "json"
+    });
+
+    apiGetJson(url, function (data) {
+        if (data && data.query && data.query.search) {
+            onSuccess(data.query.search);
+            return;
+        }
+        onError(new Error("Search result missing"));
+    }, onError);
+}
+
+Пример использования:
+
+найти страницы по ключевому слову;
+построить автоподсказки;
+проверить, как вики называет статьи.
+ПОЛУЧЕНИЕ КАТЕГОРИЙ СТРАНИЦЫ
+function getPageCategories(baseApi, title, onSuccess, onError) {
+    var url = buildApiUrl(baseApi, {
+        action: "query",
+        titles: title,
+        prop: "categories",
+        cllimit: "max",
+        format: "json"
+    });
+
+    apiGetJson(url, function (data) {
+        var pages = data.query && data.query.pages;
+        var id;
+        var page;
+
+        if (!pages) {
+            onError(new Error("No pages object"));
+            return;
+        }
+
+        for (id in pages) {
+            if (pages.hasOwnProperty(id)) {
+                page = pages[id];
+                onSuccess(page.categories || []);
+                return;
+            }
+        }
+
+        onError(new Error("Page not found"));
+    }, onError);
+}
+
+Практически это удобно для:
+
+сортировки страниц;
+фильтрации;
+аналитики;
+проверки структуры вики.
+ПОЛУЧЕНИЕ СТРАНИЦ В КАТЕГОРИИ С CONTINUATION
+function getCategoryMembers(baseApi, categoryTitle, onItem, onDone, onError) {
+    var cmcontinue = null;
+
+    function step() {
+        var params = {
+            action: "query",
+            list: "categorymembers",
+            cmtitle: categoryTitle,
+            cmlimit: 50,
+            format: "json"
+        };
+
+        if (cmcontinue) {
+            params.cmcontinue = cmcontinue;
+        }
+
+        var url = buildApiUrl(baseApi, params);
+
+        apiGetJson(url, function (data) {
+            var members = data.query && data.query.categorymembers || [];
+            var i;
+
+            for (i = 0; i < members.length; i++) {
+                onItem(members[i]);
+            }
+
+            if (data.continue && data.continue.cmcontinue) {
+                cmcontinue = data.continue.cmcontinue;
+                step();
+            } else {
+                if (onDone) onDone();
+            }
+        }, onError);
+    }
+
+    step();
+}
+
+Это шаблон для:
+
+больших категорий;
+массового сбора данных;
+обхода страниц пачками.
+ПРОСТОЙ ФИЛЬТР ПО NAMESPACE
+function filterNamespace(items, ns) {
+    var result = [];
+    var i;
+
+    for (i = 0; i < items.length; i++) {
+        if (items[i].ns === ns) {
+            result.push(items[i]);
+        }
+    }
+
+    return result;
+}
+
+Пример:
+
+ns === 0 — обычно статьи;
+ns === 10 — шаблоны;
+ns === 14 — категории.
+УМНОЕ СОРТИРОВАНИЕ
+function sortByTitle(items) {
+    return items.slice().sort(function (a, b) {
+        var at = (a.title || "").toLowerCase();
+        var bt = (b.title || "").toLowerCase();
+
+        if (at < bt) return -1;
+        if (at > bt) return 1;
+        return 0;
+    });
+}
+
+Если делаешь отчёт:
+
+сначала собери;
+потом отсортируй;
+потом вывеси в стабильном порядке.
+БАЗОВАЯ НОРМАЛИЗАЦИЯ ДАННЫХ
+function normalizeTitle(title) {
+    if (!title) return "";
+    title = title.replace(/_/g, " ");
+    title = title.replace(/^\s+|\s+$/g, "");
+    return title;
+}
+
+Полезно для:
+
+сравнения названий;
+обработки ссылок;
+очистки input.
+ПОСТРОЕНИЕ ЗАПРОСА С encodeURIComponent
+function buildEditBody(params) {
+    var key;
+    var parts = [];
+
+    for (key in params) {
+        if (params.hasOwnProperty(key) && params[key] !== undefined && params[key] !== null) {
+            parts.push(encodeURIComponent(key) + "=" + encodeURIComponent(params[key]));
+        }
+    }
+
+    return parts.join("&");
+}
+
+Это особенно важно для:
+
+summary;
+text;
+title;
+токенов.
+ПОЛУЧЕНИЕ CSRF TOKEN
+function getCsrfToken(baseApi, onSuccess, onError) {
+    var url = buildApiUrl(baseApi, {
+        action: "query",
+        meta: "tokens",
+        type: "csrf",
+        format: "json"
+    });
+
+    apiGetJson(url, function (data) {
+        if (data && data.query && data.query.tokens && data.query.tokens.csrftoken) {
+            onSuccess(data.query.tokens.csrftoken);
+            return;
+        }
+        onError(new Error("CSRF token missing"));
+    }, onError);
+}
+
+Смысл:
+
+нельзя надёжно редактировать без токена;
+токен связан с сессией;
+это защита от случайных и вредоносных изменений.
+ПРОВЕРКА, НУЖНА ЛИ РЕДАКЦИЯ
+function needsChange(oldText, newText) {
+    return oldText !== newText;
+}
+
+Но в реальном коде лучше сравнивать не только строки:
+
+сравнить нормализованные версии;
+убрать лишние пробелы;
+проверить, не изменится ли смысл;
+избегать пустых правок.
+ОДНА АККУРАТНАЯ ПРАВКА С SUMMARY
+function editPage(baseApi, title, text, token, summary, onSuccess, onError) {
+    var body = buildEditBody({
+        action: "edit",
+        title: title,
+        text: text,
+        token: token,
+        summary: summary,
+        format: "json"
+    });
+
+    apiPost(baseApi, body, function (data) {
+        if (data && data.edit && data.edit.result === "Success") {
+            onSuccess(data);
+            return;
+        }
+
+        if (data && data.error) {
+            onError(new Error(data.error.info || "API error"));
+            return;
+        }
+
+        onError(new Error("Unknown edit response"));
+    }, onError);
+}
+POST-ЗАПРОС ДЛЯ РЕДАКТИРОВАНИЯ
+function apiPost(baseApi, body, onSuccess, onError) {
+    requestJson({
+        method: "POST",
+        url: baseApi,
+        body: body,
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+        }
+    }, onSuccess, onError);
+}
+
+Почему так:
+
+action=edit почти всегда POST;
+заголовок обязателен;
+это стандартный и понятный способ.
+ПРОВЕРКА КОНФЛИКТА ПЕРЕД ПРАВКОЙ
+function safeEdit(baseApi, title, fetchContentFn, transformFn, summary, onDone, onError) {
+    fetchContentFn(title, function (page) {
+        var currentText = page.text || "";
+        var nextText = transformFn(currentText);
+
+        if (currentText === nextText) {
+            if (onDone) onDone({ skipped: true, reason: "no changes" });
+            return;
+        }
+
+        getCsrfToken(baseApi, function (token) {
+            editPage(baseApi, title, nextText, token, summary, function (result) {
+                if (onDone) onDone(result);
+            }, onError);
+        }, onError);
+    }, onError);
+}
+
+Это полезный шаблон, потому что:
+
+не делает лишних правок;
+сначала читает;
+потом проверяет;
+только потом пишет.
+ДОБАВЛЕНИЕ СОДЕРЖИМОГО ТЕГA / ПАРАМЕТРА
+function addCategory(wikitext, categoryName) {
+    var marker = "[[Category:" + categoryName + "]]";
+    if (wikitext.indexOf(marker) !== -1) {
+        return wikitext;
+    }
+    return wikitext + "\n" + marker + "\n";
+}
+
+Пример использования:
+
+автоматически добавлять категории;
+проверять отсутствие дублей;
+не ломать страницу.
+ЗАМЕНА ФРАГМЕНТА В ТЕКСТЕ
+function replaceOnce(text, from, to) {
+    var idx = text.indexOf(from);
+    if (idx === -1) return text;
+    return text.slice(0, idx) + to + text.slice(idx + from.length);
+}
+
+Полезно, если:
+
+нужно заменить один блок;
+не хочется использовать слишком сложные RegExp;
+важен контроль.
+РАБОТА С ШАБЛОНАМИ
+function hasTemplate(text, templateName) {
+    var re = new RegExp("\\{\\{\\s*" + templateName.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&") + "\\s*(\\||\\}\\})", "i");
+    return re.test(text);
+}
+
+Это базовая проверка наличия шаблона.
+Для более сложного парсинга шаблонов regex уже может быть недостаточно, но как черновой фильтр — нормально.
+
+ДЕЛАЕМ СТРОКУ ОТЧЁТА
+function buildReportLine(page) {
+    return [
+        page.title || "",
+        page.pageid || "",
+        page.revid || "",
+        page.timestamp || ""
+    ].join("\t");
+}
+
+Пример:
+
+таблица для логов;
+TSV-отчёт;
+выгрузка для дальнейшей обработки.
+ПРЕОБРАЗОВАНИЕ МАССИВА ОБЪЕКТОВ В TSV
+function toTsv(rows) {
+    var i;
+    var out = [];
+
+    for (i = 0; i < rows.length; i++) {
+        out.push(buildReportLine(rows[i]));
+    }
+
+    return out.join("\n");
+}
+
+Очень удобно, если итог надо сохранить как текст.
+
+ЗАЩИТА ОТ ПУСТЫХ ЗНАЧЕНИЙ
+function safeString(value) {
+    return value === undefined || value === null ? "" : String(value);
+}
+
+Это помогает:
+
+не ловить ошибки конкатенации;
+не падать на undefined;
+унифицировать вывод.
+РЕАЛИЗАЦИЯ RETRY С ПАУЗОЙ
+function retryAsync(taskFn, attempts, delay, onSuccess, onError) {
+    function run(remaining) {
+        taskFn(function success(result) {
+            onSuccess(result);
+        }, function fail(err) {
+            if (remaining > 1) {
+                setTimeout(function () {
+                    run(remaining - 1);
+                }, delay);
+            } else {
+                onError(err);
+            }
+        });
+    }
+
+    run(attempts);
+}
+
+Это полезно для:
+
+временных сетевых ошибок;
+429;
+нестабильных запросов.
+THROTTLE ДЛЯ ПРАВОК
+function delay(ms, done) {
+    setTimeout(done, ms);
+}
+
+Простой вариант:
+
+между правками делай паузу;
+не перегружай API;
+легче соблюдать rate limit.
+МАЛЕНЬКАЯ ОЧЕРЕДЬ ЗАДАЧ
+function runQueue(tasks, done) {
+    var i = 0;
+
+    function next() {
+        if (i >= tasks.length) {
+            if (done) done();
+            return;
+        }
+
+        tasks[i++](function () {
+            next();
+        });
+    }
+
+    next();
+}
+
+Можно использовать для:
+
+последовательных правок;
+последовательного чтения страниц;
+безопасной обработки большого списка.
+МИНИ-БОТ: ЧТЕНИЕ → ПРОВЕРКА → ПРАВКА
+
+Ниже — уже полноценный ES5-шаблон мини-бота.
+
+(function () {
+    "use strict";
+
+    var BASE_API = "https://example.fandom.com/api.php";
+    var PAGE_TITLE = "Sandbox";
+    var SUMMARY = "Automated cleanup via ES5 bot";
+    var WAIT_MS = 2000;
+
+    function requestJson(options, onSuccess, onError) {
+        var xhr = new XMLHttpRequest();
+        xhr.open(options.method || "GET", options.url, true);
+
+        if (options.headers) {
+            for (var h in options.headers) {
+                if (options.headers.hasOwnProperty(h)) {
+                    xhr.setRequestHeader(h, options.headers[h]);
+                }
+            }
+        }
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState !== 4) return;
+
+            if (xhr.status >= 200 && xhr.status < 300) {
+                try {
+                    onSuccess(JSON.parse(xhr.responseText), xhr);
+                } catch (e) {
+                    if (onError) onError(e, xhr);
+                }
+            } else {
+                if (onError) onError(new Error("HTTP " + xhr.status), xhr);
+            }
+        };
+
+        xhr.onerror = function () {
+            if (onError) onError(new Error("Network error"), xhr);
+        };
+
+        xhr.send(options.body || null);
+    }
+
+    function toQueryString(params) {
+        var parts = [];
+        var key;
+
+        for (key in params) {
+            if (params.hasOwnProperty(key) && params[key] !== undefined && params[key] !== null) {
+                parts.push(encodeURIComponent(key) + "=" + encodeURIComponent(params[key]));
+            }
+        }
+
+        return parts.join("&");
+    }
+
+    function apiGet(params, onSuccess, onError) {
+        var url = BASE_API + "?" + toQueryString(params);
+        requestJson({
+            method: "GET",
+            url: url
+        }, onSuccess, onError);
+    }
+
+    function apiPost(body, onSuccess, onError) {
+        requestJson({
+            method: "POST",
+            url: BASE_API,
+            body: body,
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+            }
+        }, onSuccess, onError);
+    }
+
+    function getCsrfToken(onSuccess, onError) {
+        apiGet({
+            action: "query",
+            meta: "tokens",
+            type: "csrf",
+            format: "json"
+        }, function (data) {
+            var token = data && data.query && data.query.tokens && data.query.tokens.csrftoken;
+            if (!token) {
+                onError(new Error("CSRF token not found"));
+                return;
+            }
+            onSuccess(token);
+        }, onError);
+    }
+
+    function readPage(title, onSuccess, onError) {
+        apiGet({
+            action: "query",
+            prop: "revisions",
+            titles: title,
+            rvprop: "content|timestamp|ids",
+            format: "json"
+        }, function (data) {
+            var pages = data && data.query && data.query.pages;
+            var id;
+            var page;
+            var rev;
+            var text;
+
+            if (!pages) {
+                onError(new Error("Pages object missing"));
+                return;
+            }
+
+            for (id in pages) {
+                if (pages.hasOwnProperty(id)) {
+                    page = pages[id];
+                    if (page.missing) {
+                        onError(new Error("Page missing: " + title));
+                        return;
+                    }
+                    rev = page.revisions && page.revisions[0];
+                    if (!rev) {
+                        onError(new Error("No revisions found"));
+                        return;
+                    }
+                    text = rev["*"] || (rev.slots && rev.slots.main && rev.slots.main["*"]) || "";
+                    onSuccess({
+                        title: page.title,
+                        pageid: page.pageid,
+                        revid: rev.revid,
+                        timestamp: rev.timestamp,
+                        text: text
+                    });
+                    return;
+                }
+            }
+
+            onError(new Error("Page not found in response"));
+        }, onError);
+    }
+
+    function transformText(text) {
+        var out = text;
+
+        out = out.replace(/\s+\n/g, "\n");
+        out = out.replace(/\n{3,}/g, "\n\n");
+
+        // Example cleanup:
+        // remove double spaces
+        out = out.replace(/[ \t]{2,}/g, " ");
+
+        return out;
+    }
+
+    function editPage(title, newText, token, baseTimestamp, onSuccess, onError) {
+        var body = toQueryString({
+            action: "edit",
+            title: title,
+            text: newText,
+            summary: SUMMARY,
+            token: token,
+            basetimestamp: baseTimestamp,
+            starttimestamp: (new Date()).toISOString(),
+            format: "json"
+        });
+
+        apiPost(body, function (data) {
+            if (data && data.edit && data.edit.result === "Success") {
+                onSuccess(data);
+                return;
+            }
+
+            if (data && data.error) {
+                onError(new Error(data.error.info || "API error"));
+                return;
+            }
+
+            onError(new Error("Unknown edit response"));
+        }, onError);
+    }
+
+    function run() {
+        readPage(PAGE_TITLE, function (page) {
+            var nextText = transformText(page.text);
+
+            if (nextText === page.text) {
+                console.log("No changes needed");
+                return;
+            }
+
+            getCsrfToken(function (token) {
+                setTimeout(function () {
+                    editPage(page.title, nextText, token, page.timestamp, function () {
+                        console.log("Page updated:", page.title);
+                    }, function (err) {
+                        console.log("Edit failed:", err.message);
+                    });
+                }, WAIT_MS);
+            }, function (err) {
+                console.log("Token error:", err.message);
+            });
+        }, function (err) {
+            console.log("Read error:", err.message);
+        });
+    }
+
+    run();
+}());
+
+Что здесь показано:
+
+IIFE;
+ES5 use strict;
+API wrapper;
+чтение страницы;
+преобразование текста;
+токен;
+безопасная правка;
+пауза перед записью.
+ВАРИАНТ: МАССОВАЯ ОБРАБОТКА СПИСКА СТРАНИЦ
+function processPages(pages, handler, done) {
+    var i = 0;
+
+    function step() {
+        if (i >= pages.length) {
+            if (done) done();
+            return;
+        }
+
+        handler(pages[i], function () {
+            i++;
+            setTimeout(step, 1000);
+        });
+    }
+
+    step();
+}
+
+Использование:
+
+пройти по списку статей;
+делать правки по одной;
+не нарушать лимиты.
+ВАРИАНТ: ОТЧЁТ БЕЗ ПРАВОК
+function buildDryRunReport(items) {
+    var lines = [];
+    var i;
+
+    for (i = 0; i < items.length; i++) {
+        lines.push(
+            items[i].title + "\t" +
+            (items[i].changeNeeded ? "CHANGE" : "SKIP") + "\t" +
+            safeString(items[i].reason)
+        );
+    }
+
+    return lines.join("\n");
+}
+
+Полезно, если:
+
+сначала нужен просмотр;
+нужно показать diff-логику;
+правки ещё не готовы.
+КАК СТРОИТЬ “МЯГКИЙ” ПАРСЕР
+function getOrDefault(obj, path, fallback) {
+    var parts = path.split(".");
+    var cur = obj;
+    var i;
+    var part;
+
+    for (i = 0; i < parts.length; i++) {
+        part = parts[i];
+        if (!cur || typeof cur !== "object" || !(part in cur)) {
+            return fallback;
+        }
+        cur = cur[part];
+    }
+
+    return cur === undefined || cur === null ? fallback : cur;
+}
+
+Пример:
+
+безопасно доставать глубокие поля;
+не падать на undefined;
+удобно для API JSON.
+РАБОТА С ОШИБКАМИ КАК С ДАННЫМИ
+function normalizeError(err) {
+    return {
+        message: err && err.message ? err.message : "Unknown error",
+        name: err && err.name ? err.name : "Error"
+    };
+}
+
+Это полезно, если:
+
+ошибки нужно писать в отчёт;
+ошибки идут в JSON;
+ошибки нужно отображать одинаково.
+КАК ЭТО ДАВАТЬ CODEX’У
+
+Лучше всего, если Codex получит не один огромный кусок, а несколько классов примеров:
+
+сеть и API;
+чтение страниц;
+парсинг;
+поиск;
+категории;
+токены;
+правки;
+очереди;
+ретраи;
+отчёты;
+мини-бот.
+
+Тогда он будет понимать не только “как”, но и “зачем”.
+
+ЧТО ЕЩЁ МОЖНО ДОБАВИТЬ ПОТОМ
+отдельный файл только по this, call, apply, bind
+отдельный файл только по prototype и наследованию
+отдельный файл только по RegExp для wikitext
+отдельный файл только по MediaWiki API continuation
+отдельный файл только по безопасным правкам
+отдельный файл только по отчётам и dry-run режиму
+
+Конец файла.

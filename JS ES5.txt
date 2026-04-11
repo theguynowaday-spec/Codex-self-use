@@ -1,0 +1,1864 @@
+JavaScript ES5 — большая подробная справка
+===========================================
+
+Этот файл — подробный конспект по JavaScript в стиле ES5.
+Он написан как практическая база знаний: что это такое, зачем нужно, как работает,
+какие есть особенности, где легко ошибиться и как писать код понятнее.
+
+Содержание
+----------
+1. Что такое ES5
+2. Как исполняется JavaScript
+3. Типы данных
+4. Переменные: var, область видимости, hoisting
+5. Операторы и выражения
+6. Управляющие конструкции
+7. Функции
+8. Объекты
+9. Массивы
+10. Строки
+11. Числа
+12. Date
+13. RegExp
+14. JSON
+15. Error и обработка ошибок
+16. this
+17. Prototype и наследование
+18. Работа с DOM и браузером
+19. Строгий режим
+20. Полезные приёмы ES5
+21. Типичные ошибки
+22. Мини-шпаргалка
+
+------------------------------------------------------------
+1. Что такое ES5
+------------------------------------------------------------
+
+ES5 — это JavaScript стандарта ECMAScript 5.
+Это версия языка, которая долго была базовой для веб-разработки и до сих пор
+встречается в старом коде, библиотеках и на собеседованиях.
+
+Зачем знать ES5:
+- чтобы понимать старый код;
+- чтобы уверенно разбираться в основах JavaScript;
+- чтобы понимать, как работают функции, объекты, прототипы и контекст;
+- чтобы писать совместимый код для старых сред;
+- чтобы понимать, откуда вырос современный JavaScript.
+
+Что ES5 добавил по сравнению со старыми версиями:
+- строгий режим: "use strict";
+- методы для массивов: forEach, map, filter, reduce, some, every, indexOf, lastIndexOf;
+- Object.keys, Object.create, Object.defineProperty и другие методы для объектов;
+- удобный JSON: JSON.parse и JSON.stringify;
+- улучшения в работе со строками, объектами и функциями;
+- фиксацию многих деталей поведения языка.
+
+Важно понимать: ES5 — это не весь JavaScript, а именно стандарт языка.
+Браузерные функции, такие как alert, setTimeout, document, window,
+не являются частью самого ES5. Это уже окружение браузера.
+
+------------------------------------------------------------
+2. Как исполняется JavaScript
+------------------------------------------------------------
+
+JavaScript — интерпретируемый или JIT-компилируемый язык в зависимости от движка.
+Для практики важно не это, а порядок выполнения кода.
+
+Код выполняется сверху вниз, но перед выполнением происходит подготовка:
+- объявления функций поднимаются полностью;
+- объявления переменных var поднимаются только как имя, без значения;
+- присваивание происходит там, где оно написано.
+
+Пример:
+
+    console.log(a); // undefined
+    var a = 10;
+    console.log(a); // 10
+
+Это работает так:
+- имя a известно заранее;
+- значение 10 появляется только в строке присваивания;
+- до неё a существует, но равно undefined.
+
+Функции поднимаются иначе:
+
+    sayHi();
+    function sayHi() {
+        console.log("Привет");
+    }
+
+Так можно, потому что объявление функции поднимается целиком.
+
+Но если функция записана в переменную:
+
+    sayHi(); // ошибка
+    var sayHi = function () {
+        console.log("Привет");
+    };
+
+Здесь поднимается только var sayHi, а не сама функция.
+
+------------------------------------------------------------
+3. Типы данных
+------------------------------------------------------------
+
+В ES5 есть примитивы и объекты.
+
+Примитивы:
+- number
+- string
+- boolean
+- null
+- undefined
+
+Объекты:
+- object
+- array
+- function
+- date
+- regexp
+- error
+- и другие встроенные объекты
+
+3.1 number
+Числа в JavaScript — это числа с плавающей точкой двойной точности.
+Обычные целые и дробные значения хранятся в одном числовом типе.
+
+Примеры:
+- 10
+- 3.14
+- -5
+- 1e3 (1000)
+- 0.1 + 0.2 может дать 0.30000000000000004
+
+Почему так:
+- из-за двоичного представления дробей;
+- некоторые десятичные числа нельзя представить абсолютно точно.
+
+Полезные значения:
+- NaN — не число
+- Infinity — бесконечность
+- -Infinity — минус бесконечность
+
+Проверка NaN:
+- NaN !== NaN
+- использовать isNaN(value), но помнить, что он пытается преобразовать значение к числу
+
+3.2 string
+Строка — текст.
+
+Примеры:
+- "hello"
+- 'hello'
+- "123"
+
+В ES5 нет шаблонных строк, поэтому обычно используют конкатенацию:
+    var name = "Иван";
+    var text = "Привет, " + name + "!";
+
+Строки неизменяемы.
+Это значит, что нельзя поменять отдельный символ внутри строки.
+Можно только создать новую строку.
+
+3.3 boolean
+Логический тип:
+- true
+- false
+
+Используется в условиях, проверках и логике.
+
+3.4 undefined
+Обычно означает: значение не было присвоено.
+Примеры:
+- объявили переменную, но не задали ей значение;
+- функция не вернула явного результата;
+- обращение к несуществующему свойству иногда даёт undefined.
+
+Пример:
+    var x;
+    console.log(x); // undefined
+
+3.5 null
+null обычно означает: "ничего", "пустое значение", "сознательно нет объекта".
+
+Разница между null и undefined:
+- undefined — обычно отсутствие присвоения;
+- null — явная пустота.
+
+3.6 object
+Объект — это набор свойств.
+Свойство состоит из имени и значения.
+
+Пример:
+    var user = {
+        name: "Иван",
+        age: 20
+    };
+
+3.7 function
+Функция в JavaScript — тоже объект, но особого вида.
+Она может:
+- храниться в переменной;
+- передаваться как аргумент;
+- возвращаться из другой функции;
+- вызываться.
+
+3.8 typeof
+Оператор typeof показывает тип значения.
+
+Примеры:
+    typeof 10;           // "number"
+    typeof "abc";         // "string"
+    typeof true;         // "boolean"
+    typeof undefined;    // "undefined"
+    typeof function(){}; // "function"
+    typeof {};           // "object"
+    typeof null;         // "object"
+
+Последний случай — историческая особенность JavaScript.
+Это один из самых известных странных моментов языка.
+
+------------------------------------------------------------
+4. Переменные: var, область видимости, hoisting
+------------------------------------------------------------
+
+В ES5 для объявления переменных используется var.
+
+Пример:
+    var count = 0;
+
+4.1 Область видимости var
+Переменная var имеет функциональную область видимости.
+Это значит:
+- она видна внутри функции, где объявлена;
+- она не ограничивается блоком if, for, while.
+
+Пример:
+    if (true) {
+        var x = 10;
+    }
+    console.log(x); // 10
+
+В ES5 это нормально, потому что if не создаёт новую область видимости.
+
+Но внутри функции:
+    function test() {
+        var y = 20;
+    }
+    console.log(y); // ошибка
+
+y существует только внутри test.
+
+4.2 Hoisting
+Hoisting — это "поднятие" объявлений.
+
+Пример:
+    function demo() {
+        console.log(a); // undefined
+        var a = 5;
+    }
+
+На деле браузер видит это примерно так:
+    function demo() {
+        var a;
+        console.log(a);
+        a = 5;
+    }
+
+Важно:
+- поднимается только объявление;
+- присваивание не поднимается.
+
+4.3 Повторное объявление
+var можно объявлять несколько раз в одной функции.
+
+Пример:
+    var a = 1;
+    var a = 2;
+
+Это не ошибка, но обычно так не делают.
+
+4.4 Имена переменных
+Правила:
+- можно использовать буквы, цифры, знак подчёркивания и $;
+- нельзя начинать с цифры;
+- нельзя использовать пробелы;
+- нельзя использовать ключевые слова языка.
+
+Хороший стиль:
+- camelCase для переменных и функций;
+- понятные имена;
+- не сокращать слишком сильно.
+
+Плохо:
+    var x1 = 5;
+    var tmp = 10;
+
+Лучше:
+    var userAge = 5;
+    var totalPrice = 10;
+
+------------------------------------------------------------
+5. Операторы и выражения
+------------------------------------------------------------
+
+5.1 Арифметические
+- + сложение
+- - вычитание
+- * умножение
+- / деление
+- % остаток от деления
+
+Пример:
+    7 % 3; // 1
+
+5.2 Строковое сложение
+Оператор + также соединяет строки.
+
+Пример:
+    "a" + "b"; // "ab"
+    "1" + 2;   // "12"
+
+Если один из операндов строка, часто происходит конкатенация.
+
+5.3 Сравнение
+- == нестрогое сравнение
+- === строгое сравнение
+- != нестрогое неравенство
+- !== строгое неравенство
+- <, >, <=, >=
+
+Совет: почти всегда использовать === и !==.
+Почему:
+- == приводит типы и может вести себя неожиданно;
+- === сравнивает и тип, и значение.
+
+Пример:
+    0 == "0";   // true
+    0 === "0";  // false
+
+5.4 Логические
+- && — И
+- || — ИЛИ
+- ! — НЕ
+
+Они работают не только с true/false, но и возвращают одно из значений.
+Это очень важная особенность JavaScript.
+
+Пример:
+    var name = input || "Гость";
+
+Если input пустой или ложный, берётся "Гость".
+
+Ложные значения (falsy):
+- false
+- 0
+- ""
+- null
+- undefined
+- NaN
+
+Всё остальное обычно truthy.
+
+5.5 Тернарный оператор
+Форма:
+    условие ? значение1 : значение2
+
+Пример:
+    var status = age >= 18 ? "adult" : "child";
+
+Используется для коротких условий.
+
+5.6 Оператор delete
+Удаляет свойство объекта.
+
+Пример:
+    var user = { name: "Иван" };
+    delete user.name;
+
+Важно:
+- удаляет свойство объекта;
+- не удаляет обычную переменную var;
+- с массивами может создавать "дырки", а не обязательно уменьшать длину так, как ожидают.
+
+------------------------------------------------------------
+6. Управляющие конструкции
+------------------------------------------------------------
+
+6.1 if / else
+Используется для ветвления.
+
+Пример:
+    if (x > 10) {
+        console.log("больше 10");
+    } else {
+        console.log("10 или меньше");
+    }
+
+6.2 else if
+Для цепочек условий.
+
+Пример:
+    if (score >= 90) {
+        grade = "A";
+    } else if (score >= 80) {
+        grade = "B";
+    } else {
+        grade = "C";
+    }
+
+6.3 switch
+Удобен, когда есть много вариантов по одному значению.
+
+Пример:
+    switch (day) {
+        case 1:
+            console.log("Понедельник");
+            break;
+        case 2:
+            console.log("Вторник");
+            break;
+        default:
+            console.log("Другой день");
+    }
+
+Очень важно ставить break, иначе выполнение "провалится" дальше.
+
+6.4 while
+Выполняет цикл, пока условие истинно.
+
+Пример:
+    var i = 0;
+    while (i < 3) {
+        console.log(i);
+        i++;
+    }
+
+6.5 do...while
+Сначала выполняет тело, потом проверяет условие.
+То есть цикл выполнится хотя бы один раз.
+
+6.6 for
+Классический цикл.
+
+Пример:
+    for (var i = 0; i < 10; i++) {
+        console.log(i);
+    }
+
+Части for:
+- начальное значение
+- условие продолжения
+- шаг
+
+6.7 break и continue
+break завершает цикл.
+continue пропускает текущую итерацию и переходит к следующей.
+
+------------------------------------------------------------
+7. Функции
+------------------------------------------------------------
+
+Функция — один из центральных механизмов JavaScript.
+
+7.1 Объявление функции
+    function add(a, b) {
+        return a + b;
+    }
+
+7.2 Функциональное выражение
+    var add = function (a, b) {
+        return a + b;
+    };
+
+Разница важна:
+- function declaration поднимается;
+- function expression ведёт себя как значение в переменной.
+
+7.3 Аргументы и параметры
+Параметры — имена в объявлении.
+Аргументы — реальные значения при вызове.
+
+Пример:
+    function greet(name) {
+        console.log("Привет, " + name);
+    }
+
+7.4 return
+return завершает функцию и возвращает значение.
+
+Если return нет, функция возвращает undefined.
+
+7.5 Функции как значения
+Функции можно:
+- хранить в переменных;
+- класть в объекты;
+- передавать в другие функции;
+- возвращать из функций.
+
+Пример:
+    function run(fn) {
+        fn();
+    }
+
+7.6 Анонимные функции
+Функции без имени:
+    setTimeout(function () {
+        console.log("прошла секунда");
+    }, 1000);
+
+7.7 Замыкание
+Замыкание — это когда функция "помнит" переменные из внешней области видимости.
+
+Пример:
+    function makeCounter() {
+        var count = 0;
+        return function () {
+            count++;
+            return count;
+        };
+    }
+
+    var counter = makeCounter();
+    counter(); // 1
+    counter(); // 2
+
+Внутренняя функция продолжает видеть count даже после завершения makeCounter.
+Это один из самых мощных механизмов JS.
+
+Зачем замыкания нужны:
+- скрывать данные;
+- создавать приватные переменные;
+- делать фабрики функций;
+- хранить состояние.
+
+7.8 Немедленно вызываемая функция
+IIFE — Immediately Invoked Function Expression.
+
+Пример:
+    (function () {
+        var secret = 123;
+        console.log(secret);
+    }());
+
+Зачем:
+- создать локальную область видимости;
+- не засорять глобальную область;
+- изолировать код.
+
+7.9 arguments
+Внутри обычной функции есть объект arguments.
+Он содержит все переданные аргументы.
+
+Пример:
+    function sum() {
+        var total = 0;
+        for (var i = 0; i < arguments.length; i++) {
+            total += arguments[i];
+        }
+        return total;
+    }
+
+Особенности arguments:
+- это не настоящий массив;
+- у него есть length;
+- к нему нельзя применять все методы массива напрямую без преобразования.
+
+7.10 call, apply, bind
+Эти методы связаны с this.
+
+call:
+    fn.call(context, arg1, arg2);
+
+apply:
+    fn.apply(context, [arg1, arg2]);
+
+bind:
+    var newFn = fn.bind(context, arg1);
+
+call вызывает сразу.
+apply вызывает сразу, но аргументы передаются массивом.
+bind возвращает новую функцию с привязанным this.
+
+------------------------------------------------------------
+8. Объекты
+------------------------------------------------------------
+
+Объект — основная структура хранения данных.
+
+8.1 Создание объекта
+    var user = {
+        name: "Иван",
+        age: 20
+    };
+
+8.2 Доступ к свойствам
+Точечная запись:
+    user.name
+
+Квадратные скобки:
+    user["name"]
+
+Скобки нужны, когда:
+- имя свойства хранится в переменной;
+- имя свойства не подходит для точки;
+- нужно обращаться динамически.
+
+8.3 Добавление и изменение
+    user.city = "London";
+    user.age = 21;
+
+8.4 Удаление
+    delete user.city;
+
+8.5 Перебор свойств
+    for (var key in user) {
+        if (user.hasOwnProperty(key)) {
+            console.log(key, user[key]);
+        }
+    }
+
+Почему нужен hasOwnProperty:
+- for...in перебирает и собственные, и унаследованные свойства;
+- hasOwnProperty оставляет только собственные.
+
+8.6 Object.keys
+Возвращает массив собственных перечислимых ключей объекта.
+
+Пример:
+    Object.keys(user); // ["name", "age"]
+
+8.7 Копирование объектов
+Простое присваивание копирует ссылку, а не сам объект.
+
+Пример:
+    var a = { x: 1 };
+    var b = a;
+    b.x = 2;
+    console.log(a.x); // 2
+
+Это потому что a и b указывают на один и тот же объект.
+
+Чтобы сделать поверхностную копию, часто используют цикл или Object.keys.
+
+8.8 Object.create
+Позволяет создать объект с заданным прототипом.
+
+Пример:
+    var person = {
+        sayHi: function () {
+            console.log("Привет");
+        }
+    };
+
+    var user = Object.create(person);
+    user.name = "Иван";
+
+user наследует sayHi от person.
+
+------------------------------------------------------------
+9. Массивы
+------------------------------------------------------------
+
+Массив — это объект, предназначенный для упорядоченного хранения значений.
+
+9.1 Создание массива
+    var arr = [1, 2, 3];
+
+9.2 Индексы
+Нумерация начинается с 0.
+
+    arr[0] // первый элемент
+    arr[1] // второй элемент
+
+9.3 length
+Свойство length хранит длину массива.
+
+Важно:
+- length — это не только количество элементов, но и индекс последнего элемента + 1;
+- можно вручную изменять length.
+
+Пример:
+    var arr = [1, 2, 3];
+    arr.length = 2; // массив станет [1, 2]
+
+9.4 Методы массивов ES5
+- push — добавить в конец
+- pop — удалить с конца
+- unshift — добавить в начало
+- shift — удалить с начала
+- splice — вырезать/вставить
+- slice — взять часть массива
+- concat — соединить массивы
+- join — сделать строку
+- reverse — перевернуть
+- sort — сортировать
+- forEach — пройти по элементам
+- map — создать новый массив преобразованием
+- filter — отфильтровать
+- reduce — свести к одному значению
+- some — хотя бы один подходит
+- every — все подходят
+- indexOf — найти индекс
+- lastIndexOf — найти последний индекс
+
+9.5 push и pop
+    arr.push(4);
+    arr.pop();
+
+9.6 shift и unshift
+    arr.unshift(0);
+    arr.shift();
+
+Эти операции могут быть медленнее на больших массивах, потому что меняют индексы.
+
+9.7 splice
+Очень важный метод.
+
+Форма:
+    arr.splice(start, deleteCount, item1, item2, ...)
+
+Он может:
+- удалять элементы;
+- вставлять элементы;
+- заменять элементы.
+
+Пример:
+    var arr = [1, 2, 3, 4];
+    arr.splice(1, 2, "a", "b");
+    // результат: [1, "a", "b", 4]
+
+9.8 slice
+Возвращает копию части массива.
+Исходный массив не изменяет.
+
+9.9 concat
+Соединяет массивы в новый массив.
+
+9.10 join
+Преобразует массив в строку.
+
+Пример:
+    [1, 2, 3].join(", "); // "1, 2, 3"
+
+9.11 sort
+По умолчанию сортирует как строки.
+
+Это важно:
+    [10, 2, 3].sort(); // [10, 2, 3] или ["10", "2", "3"] по строковому порядку
+
+Для чисел нужен comparator:
+    arr.sort(function (a, b) {
+        return a - b;
+    });
+
+Если a - b:
+- меньше 0, a идёт раньше b;
+- 0, порядок не меняется;
+- больше 0, a идёт после b.
+
+9.12 map
+Создаёт новый массив, применяя функцию к каждому элементу.
+
+9.13 filter
+Создаёт новый массив только из тех элементов, которые прошли проверку.
+
+9.14 reduce
+Сводит массив к одному значению.
+Очень полезен для сумм, подсчётов, группировок и преобразований.
+
+Пример:
+    var sum = [1, 2, 3].reduce(function (acc, item) {
+        return acc + item;
+    }, 0);
+
+9.15 forEach
+Просто перебирает элементы.
+Возврата нового массива нет.
+
+9.16 some и every
+some — хотя бы один элемент удовлетворяет условию.
+every — все элементы удовлетворяют условию.
+
+9.17 indexOf
+Ищет первый индекс элемента.
+Возвращает -1, если не найден.
+
+9.18 Массив как объект
+Массив в JS — это объект, поэтому:
+- можно добавлять нечисловые свойства;
+- но обычно так не делают для данных массива.
+
+------------------------------------------------------------
+10. Строки
+------------------------------------------------------------
+
+Строки — неизменяемые последовательности символов.
+
+10.1 Доступ к символам
+Можно обратиться по индексу:
+    "hello"[0] // "h"
+
+10.2 Методы строк
+- length
+- charAt
+- indexOf
+- lastIndexOf
+- slice
+- substring
+- split
+- toUpperCase
+- toLowerCase
+- replace
+- trim
+
+10.3 split
+Разбивает строку в массив.
+
+Пример:
+    "a,b,c".split(","); // ["a", "b", "c"]
+
+10.4 replace
+Заменяет подстроку.
+
+Пример:
+    "I like JS".replace("JS", "JavaScript");
+
+10.5 trim
+Удаляет пробелы по краям строки.
+Это ES5-метод.
+
+------------------------------------------------------------
+11. Числа
+------------------------------------------------------------
+
+11.1 Проблема точности
+Из-за двоичного формата дробей появляются погрешности.
+
+Пример:
+    0.1 + 0.2 !== 0.3
+
+11.2 parseInt и parseFloat
+parseInt превращает строку в целое число.
+parseFloat — в число с дробной частью.
+
+Пример:
+    parseInt("10", 10); // 10
+    parseFloat("3.14"); // 3.14
+
+Лучше всегда указывать основание для parseInt:
+    parseInt("08", 10);
+
+11.3 isFinite
+Проверяет, является ли значение конечным числом.
+Но помни: он может приводить типы.
+
+11.4 toString
+Числа могут преобразовываться в строку:
+    (255).toString(16); // "ff"
+
+------------------------------------------------------------
+12. Date
+------------------------------------------------------------
+
+Date — встроенный объект для работы с датой и временем.
+
+Создание:
+    var now = new Date();
+
+Можно создать конкретную дату:
+    var d = new Date(2020, 0, 1); // 1 января 2020
+Месяцы начинаются с 0:
+- 0 — январь
+- 1 — февраль
+- ...
+- 11 — декабрь
+
+Полезные методы:
+- getFullYear
+- getMonth
+- getDate
+- getDay
+- getHours
+- getMinutes
+- getSeconds
+- getTime
+- setFullYear
+- setMonth
+- setDate
+
+getDay возвращает день недели, а не число месяца.
+Это частая ошибка.
+
+------------------------------------------------------------
+13. RegExp
+------------------------------------------------------------
+
+RegExp — регулярные выражения.
+Они нужны для поиска и обработки текста по шаблону.
+
+Создание:
+    var re = /abc/;
+    var re2 = new RegExp("abc");
+
+Флаги:
+- g — global, искать все совпадения
+- i — ignore case, без учёта регистра
+- m — multiline
+
+Примеры:
+    /hello/i
+    /test/g
+
+Методы строк:
+- match
+- search
+- replace
+- split
+
+Методы RegExp:
+- test
+- exec
+
+Пример:
+    /a/.test("cat"); // true
+
+Регулярные выражения мощные, но с ними надо быть осторожным:
+- они могут быть трудными для чтения;
+- их лучше снабжать комментариями;
+- не стоит писать слишком сложные выражения без необходимости.
+
+------------------------------------------------------------
+14. JSON
+------------------------------------------------------------
+
+JSON — текстовый формат для обмена данными.
+Он похож на объекты JavaScript, но это не одно и то же.
+
+JSON поддерживает:
+- объекты
+- массивы
+- строки
+- числа
+- true
+- false
+- null
+
+JSON не поддерживает:
+- функции
+- undefined
+- комментарии
+- Date как специальный тип
+
+14.1 JSON.parse
+Преобразует JSON-строку в объект JavaScript.
+
+Пример:
+    var obj = JSON.parse('{"name":"Иван"}');
+
+14.2 JSON.stringify
+Преобразует объект JavaScript в JSON-строку.
+
+Пример:
+    JSON.stringify({ name: "Иван" });
+
+Практически всегда полезно при:
+- обмене данными;
+- сохранении;
+- отправке на сервер.
+
+------------------------------------------------------------
+15. Error и обработка ошибок
+------------------------------------------------------------
+
+Ошибки помогают отлавливать проблемный код.
+
+Типы ошибок:
+- Error
+- TypeError
+- ReferenceError
+- SyntaxError
+- RangeError
+- URIError
+
+15.1 throw
+Можно выбрасывать ошибку вручную.
+
+Пример:
+    throw new Error("Что-то пошло не так");
+
+15.2 try...catch
+Позволяет поймать ошибку.
+
+Пример:
+    try {
+        riskyCode();
+    } catch (e) {
+        console.log("Ошибка:", e.message);
+    }
+
+15.3 finally
+Выполняется всегда, даже если была ошибка.
+
+Часто используется для:
+- закрытия ресурсов;
+- очистки состояния;
+- завершения операции.
+
+------------------------------------------------------------
+16. this
+------------------------------------------------------------
+
+this — один из самых важных и самых сложных моментов ES5.
+
+Главная идея:
+this зависит не от того, где функция написана, а от того, как она вызвана.
+
+16.1 Обычный вызов функции
+    function showThis() {
+        console.log(this);
+    }
+    showThis();
+
+В нестрогом режиме this обычно указывает на глобальный объект.
+В браузере это window.
+
+16.2 Метод объекта
+    var user = {
+        name: "Иван",
+        showName: function () {
+            console.log(this.name);
+        }
+    };
+    user.showName();
+
+Здесь this — это user.
+
+16.3 Потеря контекста
+    var fn = user.showName;
+    fn();
+
+Теперь this уже не user, а другой контекст.
+Это одна из самых частых ошибок.
+
+16.4 call/apply/bind
+Они позволяют задать this вручную.
+
+16.5 new
+При вызове функции через new this указывает на создаваемый объект.
+
+Пример:
+    function Person(name) {
+        this.name = name;
+    }
+    var p = new Person("Иван");
+
+Что делает new:
+- создаёт новый объект;
+- связывает this с ним;
+- запускает функцию-конструктор;
+- возвращает объект, если функция не вернула другой объект явно.
+
+------------------------------------------------------------
+17. Prototype и наследование
+------------------------------------------------------------
+
+JavaScript использует прототипное наследование.
+
+Каждый объект может ссылаться на другой объект-прототип.
+Если свойство не найдено у самого объекта, поиск идёт по цепочке прототипов.
+
+17.1 prototype у функций
+У функций есть свойство prototype.
+Оно используется как прототип для объектов, созданных через new.
+
+Пример:
+    function User(name) {
+        this.name = name;
+    }
+
+    User.prototype.sayHi = function () {
+        console.log("Привет, " + this.name);
+    };
+
+    var u = new User("Иван");
+    u.sayHi();
+
+17.2 Как это работает
+- new создаёт объект;
+- объект получает ссылку на User.prototype;
+- методы ищутся сначала в самом объекте;
+- если не найдено, ищутся в прототипе.
+
+17.3 Зачем prototype нужен
+- не копировать методы в каждый объект отдельно;
+- экономить память;
+- описывать общие методы для всех экземпляров.
+
+17.4 Наследование через Object.create
+Можно создать объект на основе другого объекта.
+
+Пример:
+    var animal = {
+        speak: function () {
+            console.log("sound");
+        }
+    };
+
+    var dog = Object.create(animal);
+    dog.bark = function () {
+        console.log("woof");
+    };
+
+dog получает доступ к animal.speak через цепочку прототипов.
+
+17.5 hasOwnProperty
+Очень полезен при работе с прототипами.
+Показывает, принадлежит ли свойство самому объекту, а не прототипу.
+
+------------------------------------------------------------
+18. Работа с DOM и браузером
+------------------------------------------------------------
+
+DOM — Document Object Model.
+Это интерфейс, через который JavaScript управляет HTML-страницей.
+
+Примеры:
+- document
+- window
+- querySelector
+- getElementById
+- addEventListener
+- innerHTML
+- className
+- style
+
+18.1 Поиск элементов
+    var el = document.getElementById("box");
+    var items = document.getElementsByClassName("item");
+    var first = document.querySelector(".item");
+
+18.2 Изменение текста и HTML
+    el.innerHTML = "<b>Текст</b>";
+    el.textContent = "Текст";
+
+innerHTML вставляет HTML-разметку.
+textContent работает как чистый текст.
+
+18.3 Атрибуты
+    el.setAttribute("data-id", "10");
+    el.getAttribute("data-id");
+
+18.4 События
+    el.onclick = function () {
+        alert("Клик");
+    };
+
+Лучше использовать addEventListener, если поддержка окружения позволяет.
+
+18.5 Добавление классов
+В ES5 часто используют className и ручную работу со строками.
+Позже появились classList, но это уже не строго ES5.
+
+------------------------------------------------------------
+19. Строгий режим
+------------------------------------------------------------
+
+"use strict";
+
+Строгий режим делает JavaScript более безопасным и предсказуемым.
+
+Что он меняет:
+- запрещает неявное создание глобальных переменных;
+- убирает некоторые опасные и неясные конструкции;
+- делает ошибки более заметными;
+- меняет поведение this в обычных вызовах функции;
+- запрещает ряд старых синтаксических особенностей.
+
+Пример:
+    "use strict";
+    x = 10; // ошибка, если x не объявлена
+
+В нестрогом режиме это могло бы создать глобальную переменную.
+Это очень плохая практика, поэтому strict mode полезен.
+
+------------------------------------------------------------
+20. Полезные приёмы ES5
+------------------------------------------------------------
+
+20.1 Проверка переменной
+    if (typeof value !== "undefined") {
+        // безопасно
+    }
+
+20.2 Дефолтное значение
+    var name = input || "Гость";
+
+20.3 Клонирование массива
+    var copy = arr.slice();
+
+20.4 Преобразование array-like в массив
+Например, arguments:
+    var args = Array.prototype.slice.call(arguments);
+
+20.5 Использование метода массива для псевдомассива
+Можно применить, например, forEach:
+    Array.prototype.forEach.call(nodeList, function (item) {
+        console.log(item);
+    });
+
+20.6 Простая проверка объекта
+    function isObject(value) {
+        return value !== null && typeof value === "object";
+    }
+
+20.7 Проверка массива
+В ES5 часто использовали:
+    Object.prototype.toString.call(value) === "[object Array]"
+
+Позже появился Array.isArray, но это уже не ES5 в строгом историческом смысле.
+
+20.8 Сброс контекста
+    var self = this;
+
+До широкого распространения bind это был очень популярный приём.
+
+------------------------------------------------------------
+21. Типичные ошибки
+------------------------------------------------------------
+
+1. Путаница между == и ===
+Лучше почти всегда использовать ===.
+
+2. Ожидание блочной области видимости у var
+var не ограничен блоком if.
+
+3. Забытый break в switch
+Может вызвать лишнее выполнение case.
+
+4. Ошибка с this
+Контекст зависит от вызова.
+
+5. Думать, что массив — это совсем не объект
+Массив — это объект, просто со специальным поведением.
+
+6. Сортировка чисел без compareFunction
+sort по умолчанию сортирует как строки.
+
+7. Ожидание точной арифметики с дробями
+0.1 + 0.2 — не всегда 0.3.
+
+8. Использование for...in для массивов
+for...in обычно не лучший выбор для массивов.
+
+9. Забывать про hasOwnProperty
+Особенно при переборе объектов с прототипами.
+
+10. Считать, что null и undefined одинаковы
+Это разные значения и разные смыслы.
+
+------------------------------------------------------------
+22. Мини-шпаргалка
+------------------------------------------------------------
+
+Основные правила:
+- используй var в ES5;
+- почти всегда предпочитай === вместо ==;
+- помни, что var имеет функциональную область видимости;
+- function declaration поднимается целиком;
+- function expression ведёт себя как значение;
+- this определяется вызовом, а не местом объявления;
+- массивы — это объекты;
+- JSON — не то же самое, что объект JavaScript;
+- строгий режим помогает писать чище;
+- замыкания позволяют хранить состояние;
+- prototype нужен для общих методов;
+- sort для чисел требует compareFunction.
+
+Краткие примеры:
+
+    var name = "Иван";
+    var user = {
+        name: name,
+        say: function () {
+            console.log(this.name);
+        }
+    };
+
+    user.say();
+
+    var nums = [3, 1, 2];
+    nums.sort(function (a, b) {
+        return a - b;
+    });
+
+    var doubled = nums.map(function (n) {
+        return n * 2;
+    });
+
+    var total = nums.reduce(function (sum, n) {
+        return sum + n;
+    }, 0);
+
+Конец файла.
+Это будет твоим знанием для JS ES5
+
+JavaScript 2009 (ES5) — Additional Notes (English)
+=================================================
+
+ECMAScript 2009
+The first major revision to JavaScript.
+
+ECMAScript 2009 is also known as ES5.
+
+ES5 Features
+Feature	Description
+"use strict"	Allows code to be executed in "strict mode"
+String [] access	Returns the character at a specified index in a string
+Multiline strings	Aallows strings over multiple lines if escaped with \nString.trim()	Removes whitespace from both sides of a string
+Array.isArray()	Returns true if a variable is an array
+Array forEach()	Calls a function for each array element
+Array map()	Creates a new array from a function on each element
+Array filter()	Creates an array from array elements that passes a test
+Array reduce()	Reduces an array to a single value (from left)
+Array reduceRight()	Reduces an array to a single value (from right)
+Array every()	Checks if all array values pass a test
+Array some()	Checks if some values pass a test
+Array indexOf()	Search for an element value and returns its position
+Array lastIndexOf()	Search for an element value and returns its position
+JSON.parse()	Convert JSON into a JavaScript object
+JSON.stringify()	Convert JSON into a string
+Date.now()	Returns the number of milliseconds since zero date
+Date toISOString()	Converts a date object into to an ISO string
+Date toJSON()	Converts a date object into to a JSON string
+Property getters	Allows for defining how a property value is retrieved
+Property setters	Allows for defining how a property value is set
+Reserved names	Allows reserved names as property names
+Object.create()	Creates an object from an existing object
+Object.keys()	Returns an array with the keys of an object
+Object management	Object management methods
+Object protection	Object protection methods
+Object defineProperty()	Allows for defining or changing object properties
+Function bind()	Let objects borrow methods from other objects
+Trailing commas	allows trailing commas in object and array definitions:
+Browser Support
+JavaScript 2009 is supported in all modern browsers since July 2013:
+
+Chrome
+23	IE/Edge
+10	Firefox
+21	Safari
+6	Opera
+15
+Sep 2012	Sep 2012	Apr 2013	Jul 2012	Jul 2013
+The "use strict" Directive
+"use strict" defines that the JavaScript code should be executed in "strict mode".
+
+With strict mode you can, for example, not use undeclared variables.
+
+You can use strict mode in all your programs. It helps you to write cleaner code, like preventing you from using undeclared variables.
+
+"use strict" is just a string expression. Old browsers will not throw an error if they don't understand it.
+
+Property Access on Strings
+The charAt() method returns the character at a specified index (position) in a string:
+
+Example
+let str = "HELLO WORLD";
+str.charAt(0);     // returns H
+ES5 allows property access on strings:
+
+Example
+let str = "HELLO WORLD";
+str[0];           // returns H
+Property access on string might be a little unpredictable.
+
+Read more in JS String Methods.
+
+REMOVE ADS
+
+Strings Over Multiple Lines
+ES5 allows string literals over multiple lines if escaped with a backslash:
+Example
+"Hello \nDolly!";
+The \ method might not have universal support.
+Older browsers might treat the spaces around the backslash differently.
+Some older browsers do not allow spaces behind the \ character.
+
+A safer way to break up a string literal, is to use string addition:
+
+Example
+"Hello " +
+"Dolly!";
+Reserved Words as Property Names
+ES5 allows reserved words as property names:
+
+Object Example
+var obj = {name: "John", new: "yes"}
+String trim()
+The trim() method removes whitespace from both sides of a string.
+
+Example
+var str = "       Hello World!        ";
+alert(str.trim());
+Learn more in JS String Methods.
+
+REMOVE ADS
+
+Array.isArray()
+The isArray() method checks whether an object is an array.
+
+Example
+const fruits = ["Banana", "Orange", "Apple", "Mango"];
+
+result = Array.isArray(fruits);
+Learn more in JS Array Methods.
+
+Array forEach()
+The forEach() method calls a function once for each array element.
+
+Example
+const numbers = [45, 4, 9, 16, 25];
+
+numbers.forEach(myFunction);
+Learn more in JS Array Iteration Methods.
+
+Array map()
+The map() method creates a new array by performing a function on each array element.
+
+Example
+Multiply each array value by 2:
+
+const numbers1 = [45, 4, 9, 16, 25];
+const numbers2 = numbers1.map(myFunction);
+
+function myFunction(value) {
+  return value * 2;
+}
+Learn more in JS Array Iteration Methods.
+
+Array filter()
+The filter() method creates a new array from array elements that passes a test.
+
+Example
+Create a new array from elements with a value larger than 18:
+
+const numbers = [45, 4, 9, 16, 25];
+const over18 = numbers.filter(myFunction);
+
+function myFunction(value) {
+  return value > 18;
+}
+Learn more in JS Array Iteration Methods.
+
+Array reduce()
+The reduce() method reduces an array to a single value.
+
+Example
+Find the sum of all numbers in an array:
+
+const numbers = [45, 4, 9, 16, 25];
+let sum = numbers.reduce(myFunction);
+
+function myFunction(total, value) {
+  return total + value;
+}
+Learn more in JS Array Iteration Methods.
+
+Array reduceRight()
+The reduceRight() method reduces an array to a single value (from right to left).
+
+Example
+Find the sum of all numbers in an array:
+
+const numbers1 = [45, 4, 9, 16, 25];
+let sum = numbers1.reduceRight(myFunction);
+
+function myFunction(total, value) {
+  return total + value;
+}
+Learn more in JS Array Iteration Methods.
+
+Array every()
+The every() method checks if all array values pass a test.
+
+Example
+Check if all values are over 18:
+
+const numbers = [45, 4, 9, 16, 25];
+let allOver18 = numbers.every(myFunction);
+
+function myFunction(value) {
+  return value > 18;
+}
+Learn more in JS Array Iteration Methods.
+
+Array some()
+The some() method checks if some array values pass a test.
+
+Example
+Check if some values are over 18:
+
+const numbers = [45, 4, 9, 16, 25];
+let allOver18 = numbers.some(myFunction);
+
+function myFunction(value) {
+  return value > 18;
+}
+Learn more in JS Array Iteration Methods.
+
+Array indexOf()
+The indexOf() method searches for an element value and returns its position.
+
+Example
+Search an array for an element value:
+
+const fruits = ["Apple", "Orange", "Apple", "Mango"];
+let position = fruits.indexOf("Apple") + 1;
+Learn more in JS Array Search Methods.
+
+Array lastIndexOf()
+lastIndexOf() is the same as indexOf(), but searches from the end of the array.
+
+Example
+const fruits = ["Apple", "Orange", "Apple", "Mango"];
+let position = fruits.lastIndexOf("Apple") + 1;
+Learn more in JS Array Search Methods.
+
+JSON.parse()
+A common use of JSON is to receive data from a web server.
+
+Imagine you received this text string from a web server:
+
+'{"name":"John", "age":30, "city":"New York"}'
+The JavaScript function JSON.parse() is used to convert the text into a JavaScript object:
+
+Example
+const txt = '{"name":"John", "age":30, "city":"New York"}'
+
+const myObj = JSON.parse(txt);
+Read more in our JSON Tutorial.
+
+JSON.stringify()
+A common use of JSON is to send data to a web server.
+
+When sending data to a web server, the data has to be a string.
+
+Imagine we have this object in JavaScript:
+
+const myObj = {name:"John", age:30, city:"New York"};
+Use the JavaScript function JSON.stringify() to convert it into a string.
+
+const myJSON = JSON.stringify(myObj);
+The result will be a string following the JSON notation.
+
+myJSON is now a string, and ready to be sent to a server:
+
+Example
+const myObj = {name:"John", age:30, city:"New York"};
+const myJSON = JSON.stringify(myObj);
+Read more in our JSON Tutorial.
+
+Date.now()
+Date.now() returns the number of milliseconds since zero date (January 1. 1970 00:00:00 UTC).
+
+Example
+var timInMSs = Date.now();
+Date.now() returns the same as getTime() performed on a Date object.
+
+Learn more in JS Date Methods.
+
+Date toISOString()
+The toISOString() method converts a Date object to a string, using the ISO standard format:
+
+Example
+const d = new Date();
+document.getElementById("demo").innerHTML = d.toISOString();
+Learn more in JS Date Methods.
+
+Date toJSON()
+toJSON() converts a Date object into a string, formatted as a JSON date.
+
+JSON dates have the same format as the ISO-8601 standard: YYYY-MM-DDTHH:mm:ss.sssZ:
+
+Example
+d = new Date();
+document.getElementById("demo").innerHTML = d.toJSON();
+Learn more in JS Date Methods.
+
+Property Getters
+A property getter is a method that allows you to define how a property value is retrieved when it is accessed.
+
+This example creates a getter for a property called fullName:
+
+Example
+// Create an object:
+const Person = {
+  firstName: "John",
+  lastName : "Doe",
+  get fullName() {
+    return this.firstName + " " + this.lastName;
+  }
+};
+
+// Display data from the object using a getter:
+document.getElementById("demo").innerHTML = Person.fullName;
+Learn more about Gettes and Setters in JS Object Accessors
+
+Property Setters
+A property setter is a method that allows you to define how a property value is set.
+
+This example uses a setter to secure upper case updates of language:
+
+Example
+const Person = {
+  firstName: "John",
+  lastName : "Doe",
+  language : "NO",
+  set lang(value) {
+    this.language = value.toUpperCase();
+  }
+};
+
+// Set an object property using a setter:
+person.lang = "en";
+
+// Display data from the object:
+document.getElementById("demo").innerHTML = Person.language;
+This example creates a setter and a getter for the language property:
+
+Example
+const Person = {
+  firstName: "John",
+  lastName : "Doe",
+  language : "NO",
+  get lang() {
+    return this.language;
+  },
+  set lang(value) {
+    this.language = value;
+  }
+};
+
+// Set an object property using a setter:
+person.lang = "en";
+
+// Display data from the object using a getter:
+document.getElementById("demo").innerHTML = Person.lang;
+Learn more about Getters and Setters in JS Object Accessors
+
+Object.defineProperty()
+Object.defineProperty() is a new Object method in ES5.
+
+It lets you define an object property and/or change a property's value and/or metadata.
+
+Example
+// Create an Object:
+const person = {
+  firstName: "John",
+  lastName : "Doe",
+  language : "NO",
+};
+
+// Change a Property:
+Object.defineProperty(person, "language", {
+  value: "EN",
+  writable : true,
+  enumerable : true,
+  configurable : true
+});
+
+// Enumerate Properties
+let txt = "";
+for (let x in person) {
+  txt += person[x] + "<br>";
+}
+
+// Display Properties
+document.getElementById("demo").innerHTML = txt;
+Next example is the same code, except it hides the language property from enumeration:
+
+Example
+// Create an Object:
+const person = {
+  firstName: "John",
+  lastName : "Doe",
+  language : "NO",
+};
+
+// Change a Property:
+Object.defineProperty(person, "language", {
+  value: "EN",
+  writable : true,
+  enumerable : false,
+  configurable : true
+});
+
+// Enumerate Properties
+let txt = "";
+for (let x in person) {
+  txt += person[x] + "<br>";
+}
+document.getElementById("demo").innerHTML = txt;
+This example creates a setter and a getter to secure upper case updates of language:
+
+Example
+// Create an Object:
+const person = {
+  firstName: "John",
+  lastName : "Doe",
+  language : "NO"
+};
+
+// Change a Property:
+Object.defineProperty(person, "language", {
+  get : function() { return language },
+  set : function(value) { language = value.toUpperCase()}
+});
+
+// Change Language
+person.language = "en";
+
+// Display Language
+document.getElementById("demo").innerHTML = person.language;
+Learn More:
+Object Management
+
+Object.create()
+The Object.create() method creates an object from an existing object.
+
+Example
+// Create an Object:
+const person = {
+  firstName: "John",
+  lastName: "Doe"
+};
+
+// Create new Object
+const man = Object.create(person);
+man.firstName = "Peter";
+Learn more in JS Object Definition
+
+Object.keys()
+The Object.keys() method returns an array with the keys of an object.
+
+Example
+// Create an Object
+const person = {
+  firstName: "John",
+  lastName: "Doe",
+  age: 50,
+  eyeColor: "blue"
+};
+
+// Get the Keys
+const keys = Object.keys(person);
+Learn More:
+JS Object Iterations
+
+Object Management
+ES5 added new Object management methods to JavaScript:
+
+Managing Objects
+// Adding or changing an object property
+Object.defineProperty(object, property, descriptor)
+
+// Adding or changing object properties
+Object.defineProperties(object, descriptors)
+
+// Accessing a Property
+Object.getOwnPropertyDescriptor(object, property)
+
+// Accessing Properties
+Object.getOwnPropertyDescriptors(object)
+
+// Returns all properties as an array
+Object.getOwnPropertyNames(object)
+
+// Accessing the prototype
+Object.getPrototypeOf(object)
+Learn More:
+Object Management
+
+Object Protection
+ES5 added Object protection methods to JavaScript:
+
+Protecting Objects
+// Prevents adding properties to an object
+Object.preventExtensions(object)
+
+// Returns true if properties can be added to an object
+Object.isExtensible(object)
+
+// Prevents changes of object properties (not values)
+Object.seal(object)
+
+// Returns true if object is sealed
+Object.isSealed(object)
+
+// Prevents any changes to an object
+Object.freeze(object)
+
+// Returns true if object is frozen
+Object.isFrozen(object)
+Learn more in Object Protection.
+
+Function Bind()
+With the bind() method, an object can borrow a method from another object.
+
+This example creates 2 objects (person and member).
+
+The member object borrows the fullname method from the person object:
+
+Example
+const person = {
+  firstName:"John",
+  lastName: "Doe",
+  fullName: function () {
+    return this.firstName + " " + this.lastName;
+  }
+}
+
+const member = {
+  firstName:"Hege",
+  lastName: "Nilsen",
+}
+
+let fullName = person.fullName.bind(member);
+Learn more in Function bind().
+
+Trailing Commas
+ES5 allows trailing commas in object and array definitions:
+
+Object Example
+person = {
+  firstName: "John",
+  lastName: " Doe",
+  age: 46,
+}
+Array Example
+points = [
+  1,
+  5,
+  10,
+  25,
+  40,
+  100,
+];
+WARNING
+JSON does not allow trailing commas.
+
+JSON Objects:
+// Allowed:
+var person = '{"firstName":"John", "lastName":"Doe", "age":46}'
+JSON.parse(person)
+
+// Not allowed:
+var person = '{"firstName":"John", "lastName":"Doe", "age":46,}'
+JSON.parse(person)
+JSON Arrays:
+// Allowed:
+points = [40, 100, 1, 5, 25, 10]
+
+// Not allowed:
+points = [40, 100, 1, 5, 25, 10,]

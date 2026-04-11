@@ -1,0 +1,1571 @@
+CSS Knowledge Pack (Part 1) — Foundations + Practical Notes
+============================================================
+
+This file consolidates foundational CSS learning content and practical notes
+for web and wiki environments.
+
+------------------------------------------------------------
+1) CSS Introduction
+------------------------------------------------------------
+What is CSS?
+- CSS is the language we use to style a web page.
+- CSS stands for Cascading Style Sheets.
+- CSS describes how HTML elements are displayed on screen, paper, or other media.
+- CSS saves work by controlling layout for many pages at once.
+- External stylesheets are stored in `.css` files.
+
+Why Use CSS?
+- Define design, layout, and device/screen-size variations.
+- Reuse one stylesheet across many pages.
+
+Example:
+body {
+  background-color: lightblue;
+}
+
+h1 {
+  color: white;
+  text-align: center;
+}
+
+p {
+  font-family: verdana;
+  font-size: 20px;
+}
+
+------------------------------------------------------------
+2) CSS Syntax
+------------------------------------------------------------
+A CSS rule has:
+- selector
+- declaration block
+
+Each declaration has:
+- property
+- value
+
+Example:
+p {
+  color: red;
+  text-align: center;
+}
+
+Notes:
+- declarations are separated by semicolons
+- declaration blocks use curly braces `{}`
+
+------------------------------------------------------------
+3) CSS Selectors (basic map)
+------------------------------------------------------------
+Selector groups:
+1. Simple selectors (name, id, class)
+2. Combinator selectors
+3. Pseudo-class selectors
+4. Pseudo-element selectors
+5. Attribute selectors
+
+Element selector:
+p {
+  text-align: center;
+  color: red;
+}
+
+ID selector:
+#para1 {
+  text-align: center;
+  color: red;
+}
+
+------------------------------------------------------------
+4) How to Add CSS
+------------------------------------------------------------
+Three ways:
+1. External CSS (`<link rel="stylesheet" href="mystyle.css">`)
+2. Internal CSS (`<style>` in `<head>`)
+3. Inline CSS (`style="..."`)
+
+External example (HTML):
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="mystyle.css">
+</head>
+<body>
+<h1>This is a heading</h1>
+<p>This is a paragraph.</p>
+</body>
+</html>
+
+External file example (`mystyle.css`):
+body {
+  background-color: lightblue;
+}
+
+h1 {
+  color: navy;
+  margin-left: 20px;
+}
+
+Important:
+- no space between value and unit: `20px` (not `20 px`)
+
+------------------------------------------------------------
+5) CSS Comments
+------------------------------------------------------------
+CSS comment syntax:
+/* comment */
+
+Examples:
+/* single-line */
+
+p {
+  color: red; /* inline comment */
+}
+
+/* multi-line
+   comment */
+
+Notes:
+- Comments are ignored by browsers.
+- HTML comments (`<!-- -->`) and CSS comments can both appear in one document.
+
+------------------------------------------------------------
+6) Common CSS Errors
+------------------------------------------------------------
+Typical mistakes:
+1. Missing semicolons
+2. Invalid property names
+3. Invalid values
+4. Unclosed braces
+5. Extra colons/braces
+
+Examples:
+.bad {
+  color: red
+  background-color: yellow;
+}
+
+.bad {
+  colr: blue;
+  font-size: 16px;
+}
+
+.bad {
+  width: -100px;
+  color: green;
+}
+
+.bad {
+  padding: 20px;
+  margin: 10px;
+
+.bad {
+  color:: blue;
+}
+
+Tips:
+- Use syntax-highlighting editors
+- Use linters/validators
+- Write/test in small chunks
+
+------------------------------------------------------------
+7) CSS Colors
+------------------------------------------------------------
+Ways to define colors:
+- color names (e.g. red)
+- HEX (e.g. #ff0000)
+- RGB (e.g. rgb(255,0,0))
+- HSL / RGBA / HSLA
+
+Examples:
+h1 {
+  background-color: DodgerBlue;
+}
+
+p {
+  background-color: Tomato;
+}
+
+------------------------------------------------------------
+8) CSS Backgrounds
+------------------------------------------------------------
+Key background properties:
+- background-color
+- background-image
+- background-repeat
+- background-attachment
+- background-position
+- background (shorthand)
+
+Opacity:
+- `opacity: 0.0` to `1.0`
+- applies to element and children
+
+Example:
+div {
+  background-color: green;
+  opacity: 0.3;
+}
+
+------------------------------------------------------------
+9) CSS Borders
+------------------------------------------------------------
+Border control:
+- style
+- width
+- color
+
+`border-style` values:
+- dotted, dashed, solid, double
+- groove, ridge, inset, outset
+- none, hidden
+
+Example:
+p.solid { border-style: solid; }
+p.mix { border-style: dotted dashed solid double; }
+
+------------------------------------------------------------
+10) Margins
+------------------------------------------------------------
+Space outside border.
+
+Properties:
+- margin-top
+- margin-right
+- margin-bottom
+- margin-left
+
+Values:
+- auto
+- length
+- %
+- inherit
+- negative values are allowed
+
+Example:
+p {
+  margin-top: 100px;
+  margin-right: 150px;
+  margin-bottom: 100px;
+  margin-left: 80px;
+}
+
+------------------------------------------------------------
+11) Padding
+------------------------------------------------------------
+Space inside border.
+
+Properties:
+- padding-top
+- padding-right
+- padding-bottom
+- padding-left
+
+Values:
+- length
+- %
+- inherit
+- negative values are NOT allowed
+
+Example:
+div {
+  padding-top: 50px;
+  padding-right: 30px;
+  padding-bottom: 50px;
+  padding-left: 80px;
+}
+
+------------------------------------------------------------
+12) Height and Width
+------------------------------------------------------------
+`height` and `width` set content box size.
+
+Values:
+- auto
+- length
+- %
+- initial
+- inherit
+
+Example:
+div {
+  height: 200px;
+  width: 50%;
+  background-color: powderblue;
+}
+
+------------------------------------------------------------
+13) CSS Box Model
+------------------------------------------------------------
+Each element box has:
+1. content
+2. padding
+3. border
+4. margin
+
+Total width formula:
+width + left padding + right padding + left border + right border
+
+Total height formula:
+height + top padding + bottom padding + top border + bottom border
+
+Note:
+- margin affects occupied page space, but is outside element box dimensions.
+
+------------------------------------------------------------
+14) CSS Outline
+------------------------------------------------------------
+Outline is drawn OUTSIDE border.
+
+Properties:
+- outline-style
+- outline-color
+- outline-width
+- outline-offset
+- outline (shorthand)
+
+Notes:
+- outline can overlap content
+- outline does not affect element width/height calculations
+
+------------------------------------------------------------
+15) Text Formatting and Text Color
+------------------------------------------------------------
+Text properties (examples):
+- color
+- text-align
+- text-transform
+- text-indent
+- letter-spacing
+- text-decoration
+
+Example:
+body {
+  background-color: lightgrey;
+  color: blue;
+}
+
+h1 {
+  background-color: black;
+  color: white;
+}
+
+------------------------------------------------------------
+16) Fonts
+------------------------------------------------------------
+`font-family` should include fallback chain.
+
+Examples:
+.p1 { font-family: "Times New Roman", Times, serif; }
+.p2 { font-family: Arial, Helvetica, sans-serif; }
+.p3 { font-family: "Lucida Console", "Courier New", monospace; }
+
+Generic families:
+- serif
+- sans-serif
+- monospace
+- cursive
+- fantasy
+
+------------------------------------------------------------
+17) Icons (Font Awesome concept)
+------------------------------------------------------------
+- Icon libraries can be styled with CSS (size, color, shadow).
+- Usually loaded via `<script>` in `<head>`.
+- Then icon classes used in elements like `<i>` or `<span>`.
+
+------------------------------------------------------------
+18) Links
+------------------------------------------------------------
+Common link states:
+- :link
+- :visited
+- :hover
+- :active
+
+Order rules:
+- :hover after :link and :visited
+- :active after :hover
+
+Example:
+a:link { color: red; }
+a:visited { color: green; }
+a:hover { color: hotpink; }
+a:active { color: blue; }
+
+`text-decoration` often used to remove underline.
+
+------------------------------------------------------------
+19) Lists
+------------------------------------------------------------
+List properties:
+- list-style-type
+- list-style-image
+- list-style-position
+- list-style (shorthand)
+
+Examples:
+ul.a { list-style-type: circle; }
+ol.d { list-style-type: upper-roman; }
+
+Remove markers:
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+------------------------------------------------------------
+20) Tables
+------------------------------------------------------------
+Basic border example:
+table, th, td {
+  border: 1px solid;
+}
+
+Useful properties:
+- border-collapse (separate/collapse)
+- border-spacing (works with separate)
+- padding for th/td
+
+Examples:
+table { border-collapse: collapse; }
+th, td { padding: 10px; }
+
+------------------------------------------------------------
+21) display
+------------------------------------------------------------
+Common values:
+- inline
+- block
+- inline-block
+- none
+- flex
+- grid
+- contents
+
+Examples:
+li { display: inline; }
+span { display: block; }
+a { display: block; }
+
+Horizontal menu with inline-block:
+.nav li {
+  display: inline-block;
+  font-size: 18px;
+  padding: 15px;
+}
+
+------------------------------------------------------------
+22) max-width
+------------------------------------------------------------
+`max-width` prevents element from exceeding given width,
+improving responsiveness.
+
+Example:
+.ex2 {
+  max-width: 500px;
+  margin: auto;
+  border: 3px solid #73AD21;
+}
+
+------------------------------------------------------------
+23) position
+------------------------------------------------------------
+Values:
+- static
+- relative
+- fixed
+- absolute
+- sticky
+
+Position offsets:
+- top
+- right
+- bottom
+- left
+
+Example:
+.relative {
+  position: relative;
+  left: 30px;
+  border: 3px solid #73AD21;
+}
+
+------------------------------------------------------------
+24) z-index
+------------------------------------------------------------
+Defines stacking order for positioned elements.
+- higher z-index renders above lower
+- without z-index, source order influences stacking
+
+Example:
+img {
+  position: absolute;
+  z-index: -1;
+}
+
+------------------------------------------------------------
+25) overflow
+------------------------------------------------------------
+Values:
+- visible
+- hidden
+- scroll
+- auto
+
+Example:
+div {
+  overflow: auto;
+}
+
+------------------------------------------------------------
+26) float
+------------------------------------------------------------
+Values:
+- left
+- right
+- none
+- inherit
+
+Common usage:
+- wrapping text around images
+
+Example:
+img { float: right; }
+
+------------------------------------------------------------
+27) Center alignment
+------------------------------------------------------------
+Horizontal methods:
+- margin: auto
+- text-align: center
+- float/position variants
+
+Vertical methods:
+- flex align-items
+- grid place-items
+- position + transform
+
+Example:
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+------------------------------------------------------------
+28) Combinators
+------------------------------------------------------------
+Types:
+- descendant (space)
+- child (>)
+- next sibling (+)
+- subsequent sibling (~)
+
+Examples:
+div p { background-color: yellow; }
+div > p { background-color: yellow; }
+
+------------------------------------------------------------
+29) Pseudo-classes
+------------------------------------------------------------
+Syntax:
+selector:pseudo-class {
+  /* styles */
+}
+
+Common interactive:
+- :hover
+- :focus
+- :active
+- :link
+- :visited
+
+Common structural:
+- :first-child
+- :last-child
+- :nth-child(n)
+- :lang()
+
+------------------------------------------------------------
+30) Pseudo-elements
+------------------------------------------------------------
+Syntax:
+selector::pseudo-element {
+  /* styles */
+}
+
+Examples:
+- ::first-line
+- ::first-letter
+- ::before
+- ::after
+- ::marker
+- ::selection
+- ::backdrop
+
+------------------------------------------------------------
+31) Opacity and transparent backgrounds
+------------------------------------------------------------
+- `opacity` affects element + children.
+- To keep text fully visible, use RGBA background instead of parent opacity.
+
+Example:
+div {
+  background: rgba(4, 170, 109, 0.3);
+}
+
+------------------------------------------------------------
+32) Image sprites
+------------------------------------------------------------
+Sprite = many small images in one file.
+Benefits:
+- fewer HTTP requests
+- lower bandwidth overhead
+
+Core properties:
+- background-image
+- background-position
+
+------------------------------------------------------------
+33) Attribute selectors
+------------------------------------------------------------
+Forms:
+- [attribute]
+- [attribute="value"]
+- [attribute~="value"]
+- [attribute|="value"]
+- [attribute^="value"]
+- [attribute$="value"]
+- [attribute*="value"]
+
+Example:
+a[target="_blank"] {
+  background-color: yellow;
+}
+
+Case-insensitive option:
+[attribute="value" i]
+
+------------------------------------------------------------
+34) Forms styling (starter)
+------------------------------------------------------------
+CSS can significantly improve form readability/usability.
+Typical targets:
+- label
+- input
+- select
+- textarea
+- button
+
+Starter wrapper example:
+.form-shell {
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  padding: 40px;
+}
+
+------------------------------------------------------------
+35) Fandom/MediaWiki practical bridge notes
+------------------------------------------------------------
+For wiki environments:
+- CSS often lives on wiki pages (not local project files):
+  - `MediaWiki:Common.css`
+  - `MediaWiki:Fandomdesktop.css`
+  - `MediaWiki:Fandommobile.css`
+  - `User:Name/common.css`
+- Keep selectors scoped to avoid site-wide regressions.
+- Prefer class-driven architecture:
+  - JS toggles classes
+  - CSS defines appearance
+
+End of file.
+
+------------------------------------------------------------
+PART 2 — Forms, Units, Specificity, Math, Performance, Accessibility, Layout, Advanced
+------------------------------------------------------------
+
+36) Styling Form Inputs
+- Common properties: width, padding, margin, border, border-radius, background-color, color, font-size.
+- Focus styles with `:focus`.
+- Optional icon in input via `background-image` + `background-position` + left padding.
+- Animated focus width via `transition`.
+
+Examples:
+input[type=text]:focus {
+  background-color: lightblue;
+}
+
+input[type=text]:focus {
+  border: 3px solid #555;
+}
+
+input[type=text] {
+  background-color: white;
+  background-image: url('searchicon.png');
+  background-position: 10px 10px;
+  background-repeat: no-repeat;
+  padding-left: 40px;
+}
+
+input[type=text] {
+  transition: width 0.4s ease-in-out;
+}
+
+input[type=text]:focus {
+  width: 100%;
+}
+
+37) Form controls (textarea/select/buttons)
+textarea {
+  width: 100%;
+  height: 150px;
+  padding: 12px 20px;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  resize: none;
+}
+
+select {
+  width: 100%;
+  padding: 16px 20px;
+  border: none;
+  border-radius: 4px;
+  background-color: #f1f1f1;
+}
+
+input[type=button], input[type=submit], input[type=reset] {
+  background-color: #04AA6D;
+  border: none;
+  color: white;
+  padding: 16px 32px;
+  text-decoration: none;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+
+Tip: `width: 100%` for full-width buttons.
+
+38) CSS Counters
+- `counter-reset`
+- `counter-increment`
+- `content`
+- `counter()`
+
+Example:
+body {
+  counter-reset: section;
+}
+
+h2::before {
+  counter-increment: section;
+  content: "Section " counter(section) ": ";
+}
+
+39) CSS Units
+Absolute: px, cm, mm, in, pt, pc.
+Relative: em, rem, vw, vh, vmin, vmax, %, fr, ch.
+
+Examples:
+body { font-size: 16px; }
+h1 { font-size: 2.5em; }
+h2 { font-size: 1.875em; }
+p  { font-size: 1em; }
+
+html { font-size: 16px; }
+h1 { font-size: 2.5rem; }
+
+40) CSS Inheritance
+- Inherited properties: typically text-related (color, font-size, etc.).
+- Non-inherited: typically box/layout-related (border, margin, padding, width, height).
+- Force inheritance with `inherit`.
+
+Example:
+strong {
+  border: inherit;
+}
+
+41) CSS Specificity and !important
+Specificity hierarchy:
+- inline styles (highest practical)
+- id selectors (1-0-0)
+- class/attribute/pseudo-class (0-1-0)
+- element/pseudo-element (0-0-1)
+- universal `*` and `:where()` (0-0-0)
+
+`!important` overrides normal cascade and should be used sparingly.
+
+42) CSS Math Functions
+- `calc()`
+- `max()`
+- `min()`
+- `clamp()`
+
+Examples:
+#div1 {
+  width: calc(100% - 100px);
+  height: calc(30vh + 50px);
+}
+
+#div1 {
+  width: max(50%, 300px);
+}
+
+#div1 {
+  width: min(50%, 300px);
+}
+
+h2 {
+  font-size: clamp(1.5rem, 5vw, 3rem);
+}
+
+43) CSS Performance Optimization
+- Prefer simple selectors.
+- Avoid unnecessary universal selector usage.
+- Avoid inline styles when possible.
+- Prefer `<link>` over `@import` for CSS loading.
+- Use shorthand properties.
+- Reduce heavy/unused animations.
+- Prefer performant animation properties (`transform`, `opacity`, `filter`).
+- Combine/minify/cache stylesheets.
+
+44) CSS Accessibility Styling
+- Maintain high color contrast.
+- Use readable fonts, proper size, and line-height.
+- Keep visible focus indicators.
+- Do not remove focus outline without replacement.
+- Respect user preferences: `prefers-reduced-motion`.
+
+Example:
+a:focus, button:focus, input:focus {
+  outline: 2px solid orange;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+45) Website Layout Basics
+- Typical structure: header, nav, content, footer.
+- Use flexbox/media queries for responsive column changes.
+
+Example:
+.flex-container {
+  display: flex;
+  flex-direction: row;
+}
+
+@media screen and (max-width:600px) {
+  .flex-container {
+    flex-direction: column;
+  }
+}
+
+46) Rounded Corners and Border Images
+- `border-radius` (1–4 values, elliptical values with `/`, circle via 50%).
+- `border-image` with source/slice/repeat and required border.
+
+Examples:
+#box {
+  border-radius: 25px;
+}
+
+#borderimg {
+  border: 10px solid transparent;
+  border-image: url(border.png) 30 round;
+}
+
+47) Multiple Backgrounds and Background Sizing
+- Multiple images: comma-separated in `background-image`.
+- `background-size`: length, percentage, `auto`, `contain`, `cover`.
+- Full-page background pattern:
+
+html {
+  background: url(img_man.jpg) no-repeat center fixed;
+  background-size: cover;
+}
+
+48) background-origin and background-clip
+- `background-origin`: padding-box / border-box / content-box
+- `background-clip`: border-box / padding-box / content-box
+
+49) Color Advanced Keywords and Models
+- RGBA / HSLA for alpha control.
+- Keywords: `transparent`, `currentcolor`, `inherit`.
+
+50) Gradients
+- Linear (`linear-gradient`, `repeating-linear-gradient`)
+- Radial (`radial-gradient`, `repeating-radial-gradient`)
+- Conic (`conic-gradient`, `repeating-conic-gradient`)
+
+51) Shadow Effects
+- `text-shadow`
+- `box-shadow` (including multiple shadows, blur/spread/inset)
+
+52) Text Effects
+- `text-overflow`
+- `word-wrap` (break-word)
+- `word-break`
+- `writing-mode`
+
+53) Custom Fonts (@font-face)
+Example:
+@font-face {
+  font-family: myFont;
+  src: url(sansation_light.woff);
+}
+
+p { font-family: myFont; }
+
+54) 2D/3D Transforms
+2D functions:
+- translate, rotate, scale, skew, matrix
+
+3D functions:
+- rotateX, rotateY, rotateZ, translate3d, matrix3d, perspective
+
+55) Transitions
+- transition-property
+- transition-duration
+- transition-timing-function
+- transition-delay
+- transition shorthand
+
+Example:
+div {
+  transition: width 2s, height 4s, background-color 3s;
+}
+
+div:hover {
+  width: 300px;
+}
+
+End of Part 2.
+
+------------------------------------------------------------
+PART 3 — Animations, Tooltips, Images, Variables, Media Queries, Flexbox
+------------------------------------------------------------
+
+56) CSS Animations
+Core pieces:
+- `@keyframes`
+- `animation-name`
+- `animation-duration`
+- optional timing props: delay, iteration-count, direction, fill-mode, timing-function, play-state
+
+Examples:
+@keyframes myAnimation {
+  from { background-color: red; }
+  to { background-color: yellow; }
+}
+
+div {
+  animation-name: myAnimation;
+  animation-duration: 4s;
+}
+
+@keyframes myAnimation {
+  0%   {background-color:red; left:0; top:0;}
+  25%  {background-color:yellow; left:200px; top:0;}
+  50%  {background-color:blue; left:200px; top:200px;}
+  75%  {background-color:green; left:0; top:200px;}
+  100% {background-color:red; left:0; top:0;}
+}
+
+animation shorthand example:
+div {
+  animation: myAnimation 5s linear 2s infinite alternate;
+}
+
+57) Tooltip Patterns
+Basic structure:
+- container `.tooltip` is `position: relative`
+- text `.tooltiptext` is `position: absolute` and hidden by default
+- show on hover
+
+Example:
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+Fade-in tooltip:
+.tooltiptext {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.tooltip:hover .tooltiptext {
+  opacity: 1;
+}
+
+Arrow via pseudo-element:
+.tooltiptext::after {
+  content: " ";
+  position: absolute;
+  border-width: 5px;
+  border-style: solid;
+}
+
+58) Image Styling + Effects
+Common patterns:
+- rounded images (`border-radius`)
+- thumbnail style (`border`, `padding`)
+- hover shadow
+- hover flip (`transform: scaleX(-1)`)
+- responsive gallery with media queries
+
+59) Responsive Modal Image Idea
+- CSS handles modal layout and animation
+- JS toggles visibility and caption
+- mobile breakpoints adjust gallery columns
+
+60) Image Filters (`filter`)
+Supported effects:
+- blur
+- brightness
+- contrast
+- drop-shadow
+- grayscale
+- hue-rotate
+- invert
+- opacity
+- saturate
+- sepia
+
+Examples:
+#img1 { filter: blur(2px); }
+#img2 { filter: brightness(150%); }
+#img3 { filter: grayscale(1); }
+
+61) Image Shapes
+- `clip-path` with `circle()`, `ellipse()`, `polygon()`
+- `shape-outside` for text wrapping around shaped floats
+
+Example:
+img {
+  float: left;
+  clip-path: circle(40%);
+  shape-outside: circle(45%);
+}
+
+62) object-fit / object-position
+`object-fit` values:
+- fill
+- cover
+- contain
+- none
+- scale-down
+
+Example:
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 80% 100%;
+}
+
+63) CSS Masking (overview)
+- `mask-image` with PNG/SVG/gradients
+- `mask-repeat`, `mask-position`, `mask-size`
+- gradient masks and SVG `<mask>` workflows
+- consider `-webkit-mask-image` for compatibility where needed
+
+64) Button Styling Patterns
+Core props:
+- background-color, color, border, padding, border-radius
+- box-shadow, font-size, cursor, text-decoration
+
+Patterns:
+- hover states with transitions
+- disabled state via opacity + not-allowed cursor
+- width presets (fixed, %, full width)
+- horizontal/vertical button groups (flex-based)
+
+65) Pagination and Breadcrumbs
+- flex-based pagination list
+- `.active` page highlight
+- `.disabled` page controls with `pointer-events: none`
+- breadcrumb separators via `li + li::before`
+
+66) Multi-column Layout
+Key properties:
+- `column-count`
+- `column-gap`
+- `column-rule` (+ style/width/color)
+- `column-span`
+- `column-width`
+
+67) User Interface Properties
+- `resize` (horizontal / vertical / both / none)
+- `outline-offset`
+
+Examples:
+textarea { resize: none; }
+div { resize: both; overflow: auto; }
+
+68) CSS Variables and var()
+Global and local variable usage:
+:root {
+  --primary-bg-color: #1e90ff;
+  --primary-color: #ffffff;
+}
+
+.container {
+  color: var(--primary-bg-color);
+  background-color: var(--primary-color);
+}
+
+Local override:
+.container .note {
+  --primary-bg-color: red;
+  border: 1px solid var(--primary-bg-color);
+}
+
+Variables in media queries:
+@media screen and (min-width: 450px) {
+  .container {
+    --fontsize: 40px;
+  }
+}
+
+69) `@property` Rule (typed custom properties)
+Example:
+@property --myColor {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: lightgray;
+}
+
+Benefits:
+- type checking
+- default fallback
+- explicit inheritance behavior
+
+70) box-sizing Best Practice
+Default model adds padding+border beyond declared width/height.
+Recommended baseline:
+* {
+  box-sizing: border-box;
+}
+
+71) Media Queries
+Syntax:
+@media [not] media-type and (feature: value) { ... }
+
+Common features:
+- min-width / max-width
+- min-height / max-height
+- orientation
+- resolution
+- prefers-color-scheme
+
+Example:
+@media screen and (min-width: 480px) and (max-width: 768px) {
+  body { background-color: lightgreen; }
+}
+
+72) Flexbox (quick map)
+Flex container properties:
+- display: flex / inline-flex
+- flex-direction
+- flex-wrap
+- flex-flow
+- justify-content
+- align-items
+- align-content
+
+Flex item properties:
+- order
+- flex-grow
+- flex-shrink
+- flex-basis
+- flex (shorthand)
+- align-self
+
+True centering with flex:
+.flex-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+End of Part 3.
+
+------------------------------------------------------------
+PART 4 — Final pack: Flex items + responsive flexbox + CSS references
+------------------------------------------------------------
+
+The CSS Flex Items Properties
+The following table lists all the CSS Flex Items properties:
+
+Property	Description
+align-self	Specifies the alignment for a flex item (overrides the flex container's align-items property)
+flex	A shorthand property for the flex-grow, flex-shrink, and the flex-basis properties
+flex-basis	Specifies the initial length of a flex item
+flex-grow	Specifies how much a flex item will grow relative to the rest of the flex items inside the container
+flex-shrink	Specifies how much a flex item will shrink relative to the rest of the flex items inside the container
+order	Specifies the order of the flex items inside the container
+
+CSS Responsive Flexbox
+Responsive Flexbox
+You learned from the CSS Media Queries chapter that you can use media queries to create different layouts for different screen sizes and devices.
+
+For example, if you want to create a three-column layout for large screen sizes, and a one-column layout for small screen sizes (such as phones), you can change the flex-direction from row to column at a specific breakpoint (600px in the example below):
+
+Example
+.flex-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-item {
+  background-color: #f1f1f1;
+  padding: 10px;
+  font-size: 30px;
+  text-align: center;
+  width: 100%;
+}
+
+/* Make a one column-layout instead of three-column layout */
+@media (max-width: 600px) {
+  .flex-container {
+    flex-direction: column;
+  }
+}
+
+Another way is to change the percentage of the flex property of the flex items to create different layouts for different screen sizes. Note that we also have to include flex-wrap: wrap; on the flex container for this example to work:
+
+Example
+.flex-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.flex-item {
+  background-color: #f1f1f1;
+  padding: 10px;
+  text-align: center;
+  font-size: 30px;
+  flex: 33.3%;
+}
+
+/* Make a one column-layout instead of a three-column layout */
+@media (max-width: 600px) {
+  .flex-item {
+    flex: 100%;
+  }
+}
+
+Responsive Image Gallery using Flexbox
+Here, we use media queries together with flexbox to create a responsive image gallery.
+
+Responsive Website using Flexbox
+Use flexbox to create a responsive website, containing a flexible navigation bar and flexible content.
+
+!!!! CSS REFERENCES !!!! 
+Just to reminder:
+<div id="cssproperties">
+
+<h2>A</h2>
+<table class="ws-table-all notranslate">
+  <tbody><tr>
+    <td><a href="css4_pr_accent-color.php">accent-color</a></td>
+    <td>Specifies an accent color for user-interface controls</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_align-content.php">align-content</a></td>
+    <td>Specifies the alignment between the lines inside a flexible container when the items do not use all available space</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_align-items.php">align-items</a></td>
+    <td>Specifies the alignment for items inside a flexible container</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_align-self.php">align-self</a></td>
+    <td>Specifies the alignment for selected items inside a flexible container</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_all.php">all</a></td>
+    <td>Resets all properties (except unicode-bidi and direction)</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_animation.php">animation</a></td>
+    <td>A shorthand property for all the <em>animation-*</em> properties</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_animation-delay.php">animation-delay</a></td>
+    <td>Specifies a delay for the start of an animation</td>
+    </tr>
+  <tr>
+    <td><a href="css3_pr_animation-direction.php">animation-direction</a></td>
+    <td>Specifies whether an animation should be played forward, backward or 
+    in alternate cycles</td>
+    </tr>
+  <tr>
+    <td><a href="css3_pr_animation-duration.php">animation-duration</a></td>
+    <td>Specifies how long an animation should take to complete one cycle</td>
+    </tr>
+  <tr>
+    <td><a href="css3_pr_animation-fill-mode.php">animation-fill-mode</a></td>
+    <td>Specifies a style for the element when the animation is not playing (before 
+    it starts, after it ends, or both)</td>
+    </tr>
+  <tr>
+    <td><a href="css3_pr_animation-iteration-count.php">animation-iteration-count</a></td>
+    <td>Specifies the number of times an animation should be played</td>
+    </tr>
+  <tr>
+    <td><a href="css3_pr_animation-name.php">animation-name</a></td>
+    <td>Specifies a name for the @keyframes animation</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_animation-play-state.php">animation-play-state</a></td>
+    <td>Specifies whether the animation is running or paused</td>
+    </tr>
+  <tr>
+    <td><a href="css3_pr_animation-timing-function.php">animation-timing-function</a></td>
+    <td>Specifies the speed curve of an animation</td>
+  </tr>
+  <tr>
+    <td><a href="css_pr_aspect-ratio.php">aspect-ratio</a></td>
+    <td>Specifies preferred aspect ratio of an element</td>
+  </tr>
+</tbody></table>
+
+<h2>B</h2>
+<table class="ws-table-all notranslate">
+  <tbody><tr>
+    <td><a href="css3_pr_backdrop-filter.php">backdrop-filter</a></td>
+    <td>Defines a graphical effect to the area behind an element</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_backface-visibility.php">backface-visibility</a></td>
+    <td>Defines whether or not the back face of an element should be visible when facing the user</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_background.php">background</a></td>
+    <td>A shorthand property for all the <em>background-*</em> properties</td>
+  </tr>
+  <tr>
+    <td><a href="pr_background-attachment.php">background-attachment</a></td>
+    <td>Sets whether a background image scrolls with the rest of the page, or is fixed</td>
+  </tr>
+  <tr>
+    <td><a href="pr_background-blend-mode.php">background-blend-mode</a></td>
+    <td>Specifies the blending mode of each background layer (color/image)</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_background-clip.php">background-clip</a></td>
+    <td>Defines how far the background (color or image) should extend within an 
+    element</td>
+  </tr>
+  <tr>
+    <td><a href="pr_background-color.php">background-color</a></td>
+    <td>Specifies the background color of an element</td>
+  </tr>
+  <tr>
+    <td><a href="pr_background-image.php">background-image</a></td>
+    <td>Specifies one or more background images for an element</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_background-origin.php">background-origin</a></td>
+    <td>Specifies the origin position of a background image</td>
+  </tr>
+  <tr>
+    <td><a href="pr_background-position.php">background-position</a></td>
+    <td>Specifies the position of a background image</td>
+  </tr>
+  <tr>
+    <td><a href="pr_border.php">border</a></td>
+    <td>A shorthand property for <em>border-width, border-style</em> and <em>border-color</em></td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_border-image.php">border-image</a></td>
+    <td>A shorthand property for all the <em>border-image-*</em> properties</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_border-radius.php">border-radius</a></td>
+    <td>A shorthand property for the four <em>border-*-radius</em> properties</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_box-shadow.php">box-shadow</a></td>
+    <td>Attaches one or more shadows to an element</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_box-sizing.php">box-sizing</a></td>
+    <td>Defines how the width and height of an element are calculated</td>
+  </tr>
+</tbody></table>
+
+<h2>C</h2>
+<table class="ws-table-all notranslate">
+  <tbody><tr>
+    <td><a href="pr_tab_caption-side.php">caption-side</a></td>
+    <td>Specifies the placement of a table caption</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_caret-color.php">caret-color</a></td>
+    <td>Specifies the color of the cursor (caret) in editable elements</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_clip-path.php">clip-path</a></td>
+    <td>Clips an element to a basic shape or to an SVG source</td>
+  </tr>
+  <tr>
+    <td><a href="pr_text_color.php">color</a></td>
+    <td>Sets the color of text</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_column-count.php">column-count</a></td>
+    <td>Specifies the number of columns an element should be divided into</td>
+  </tr>
+  <tr>
+    <td><a href="css3_pr_column-gap.php">column-gap</a></td>
+    <td>Specifies the gap between the columns</td>
+  </tr>
+  <tr>
+    <td><a href="pr_gen_content.php">content</a></td>
+    <td>Used with :before/:after to insert generated content</td>
+  </tr>
+  <tr>
+    <td><a href="pr_class_cursor.php">cursor</a></td>
+    <td>Specifies pointer cursor behavior</td>
+  </tr>
+</tbody></table>
+
+<h2>D</h2>
+<table class="ws-table-all notranslate"><tbody><tr><td><a href="pr_class_display.php">display</a></td><td>Specifies how an element should be displayed</td></tr></tbody></table>
+
+<h2>F</h2>
+<table class="ws-table-all notranslate">
+  <tbody><tr><td><a href="css3_pr_filter.php">filter</a></td><td>Defines visual effects on an element</td></tr>
+  <tr><td><a href="css3_pr_flex.php">flex</a></td><td>Shorthand for flex-grow, flex-shrink, flex-basis</td></tr>
+  <tr><td><a href="css3_pr_flex-basis.php">flex-basis</a></td><td>Specifies initial length of a flexible item</td></tr>
+  <tr><td><a href="css3_pr_flex-direction.php">flex-direction</a></td><td>Specifies direction of flexible items</td></tr>
+  <tr><td><a href="css3_pr_flex-flow.php">flex-flow</a></td><td>Shorthand for flex-direction and flex-wrap</td></tr>
+  <tr><td><a href="css3_pr_flex-grow.php">flex-grow</a></td><td>Specifies how much the item will grow</td></tr>
+  <tr><td><a href="css3_pr_flex-shrink.php">flex-shrink</a></td><td>Specifies how the item will shrink</td></tr>
+  <tr><td><a href="css3_pr_flex-wrap.php">flex-wrap</a></td><td>Specifies whether flexible items should wrap</td></tr>
+  <tr><td><a href="pr_class_float.php">float</a></td><td>Specifies whether an element should float</td></tr>
+  <tr><td><a href="atrule_font-face.php">@font-face</a></td><td>Specifies a custom font to use</td></tr>
+  <tr><td><a href="pr_font_font-size.php">font-size</a></td><td>Specifies font size of text</td></tr>
+</tbody></table>
+
+<h2>G</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="css3_pr_gap.php">gap</a></td><td>Shorthand for row-gap and column-gap</td></tr>
+<tr><td><a href="pr_grid.php">grid</a></td><td>Shorthand for grid properties</td></tr>
+</tbody></table>
+
+<h2>H</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="pr_dim_height.php">height</a></td><td>Sets the height of an element</td></tr>
+</tbody></table>
+
+<h2>I</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="atrule_import.php">@import</a></td><td>Import stylesheet into another stylesheet</td></tr>
+<tr><td><a href="css_pr_inline-size.php">inline-size</a></td><td>Specifies size in inline direction</td></tr>
+</tbody></table>
+
+<h2>J</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="css3_pr_justify-content.php">justify-content</a></td><td>Alignment inside flexible container</td></tr>
+</tbody></table>
+
+<h2>K</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="atrule_keyframes.php">@keyframes</a></td><td>Controls animation steps</td></tr>
+</tbody></table>
+
+<h2>L</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="pr_pos_left.php">left</a></td><td>Specifies left position of positioned element</td></tr>
+<tr><td><a href="pr_dim_line-height.php">line-height</a></td><td>Sets line height</td></tr>
+<tr><td><a href="pr_list-style.php">list-style</a></td><td>Sets all list properties in one declaration</td></tr>
+</tbody></table>
+
+<h2>M</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="pr_margin.php">margin</a></td><td>Sets all margin properties in one declaration</td></tr>
+<tr><td><a href="css3_pr_mask.php">mask</a></td><td>Shorthand for mask properties</td></tr>
+<tr><td><a href="pr_dim_max-width.php">max-width</a></td><td>Sets maximum width</td></tr>
+<tr><td><a href="atrule_media.php">@media</a></td><td>Style rules for different devices/sizes</td></tr>
+<tr><td><a href="pr_dim_min-width.php">min-width</a></td><td>Sets minimum width</td></tr>
+</tbody></table>
+
+<h2>O</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="css3_pr_object-fit.php">object-fit</a></td><td>How replaced content should fit its box</td></tr>
+<tr><td><a href="css3_pr_object-position.php">object-position</a></td><td>Alignment of replaced element inside its box</td></tr>
+<tr><td><a href="css3_pr_opacity.php">opacity</a></td><td>Sets opacity level</td></tr>
+<tr><td><a href="css3_pr_order.php">order</a></td><td>Sets order of flexible item</td></tr>
+<tr><td><a href="pr_outline.php">outline</a></td><td>Shorthand for outline properties</td></tr>
+<tr><td><a href="css3_pr_outline-offset.php">outline-offset</a></td><td>Offsets an outline beyond border edge</td></tr>
+<tr><td><a href="pr_pos_overflow.php">overflow</a></td><td>Specifies overflow behavior</td></tr>
+</tbody></table>
+
+<h2>P</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="pr_padding.php">padding</a></td><td>Shorthand for padding properties</td></tr>
+<tr><td><a href="css3_pr_perspective.php">perspective</a></td><td>Gives a 3D-positioned element perspective</td></tr>
+<tr><td><a href="css3_pr_pointer-events.php">pointer-events</a></td><td>Defines whether element reacts to pointer events</td></tr>
+<tr><td><a href="pr_class_position.php">position</a></td><td>Specifies positioning method</td></tr>
+<tr><td><a href="atrule_property.php">@property</a></td><td>Defines custom CSS properties in stylesheet</td></tr>
+</tbody></table>
+
+<h2>R</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="css3_pr_resize.php">resize</a></td><td>Defines if/how element is resizable</td></tr>
+<tr><td><a href="pr_pos_right.php">right</a></td><td>Specifies right position</td></tr>
+<tr><td><a href="css3_pr_row-gap.php">row-gap</a></td><td>Specifies gap between grid rows</td></tr>
+</tbody></table>
+
+<h2>S</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="pr_scroll-behavior.php">scroll-behavior</a></td><td>Smooth scroll behavior</td></tr>
+<tr><td><a href="css_pr_shape-outside.php">shape-outside</a></td><td>Defines wrapping shape for inline content</td></tr>
+<tr><td><a href="atrule_supports.php">@supports</a></td><td>Tests browser support for feature</td></tr>
+</tbody></table>
+
+<h2>T</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="pr_text_text-align.php">text-align</a></td><td>Horizontal text alignment</td></tr>
+<tr><td><a href="pr_text_text-decoration.php">text-decoration</a></td><td>Text decoration</td></tr>
+<tr><td><a href="css3_pr_text-overflow.php">text-overflow</a></td><td>Behavior when text overflows</td></tr>
+<tr><td><a href="css3_pr_text-shadow.php">text-shadow</a></td><td>Adds shadow to text</td></tr>
+<tr><td><a href="css3_pr_transform.php">transform</a></td><td>2D/3D transformation</td></tr>
+<tr><td><a href="css3_pr_transition.php">transition</a></td><td>Shorthand for transition properties</td></tr>
+</tbody></table>
+
+<h2>U</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="css3_pr_user-select.php">user-select</a></td><td>Specifies whether text can be selected</td></tr>
+</tbody></table>
+
+<h2>V</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="pr_class_visibility.php">visibility</a></td><td>Specifies visibility of an element</td></tr>
+</tbody></table>
+
+<h2>W</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="pr_dim_width.php">width</a></td><td>Sets width of an element</td></tr>
+<tr><td><a href="css3_pr_word-break.php">word-break</a></td><td>Specifies word breaking behavior</td></tr>
+<tr><td><a href="css3_pr_word-wrap.php">word-wrap</a></td><td>Allows long words to wrap</td></tr>
+<tr><td><a href="css3_pr_writing-mode.php">writing-mode</a></td><td>Horizontal/vertical text flow</td></tr>
+</tbody></table>
+
+<h2>Z</h2>
+<table class="ws-table-all notranslate"><tbody>
+<tr><td><a href="pr_pos_z-index.php">z-index</a></td><td>Sets stack order of positioned element</td></tr>
+<tr><td><a href="css3_pr_zoom.php">zoom</a></td><td>Specifies zoom factor for an element</td></tr>
+</tbody></table>
+</div>
+
+Note: Full A–Z references snapshot added as text training material for CSS recall.
