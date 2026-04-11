@@ -1,0 +1,804 @@
+(function () {
+	'use strict';
+
+	if (window.__tabberSandboxVE) {
+		return;
+	}
+	window.__tabberSandboxVE = true;
+
+	var OVERLAY_ID = 'tbx-overlay-root';
+	var ROOT_CLASS = 'tbx-root';
+	var DEBUG = false;
+
+	function log() {
+		if (!DEBUG || !window.console || !console.log) {
+			return;
+		}
+		console.log.apply(console, arguments);
+	}
+
+	function hasClass(el, cls) {
+		return !!(el && (' ' + el.className + ' ').indexOf(' ' + cls + ' ') !== -1);
+	}
+
+	function addClass(el, cls) {
+		if (!el) {
+			return;
+		}
+		if (!hasClass(el, cls)) {
+			el.className = el.className ? (el.className + ' ' + cls) : cls;
+		}
+	}
+
+	function removeClass(el, cls) {
+		if (!el) {
+			return;
+		}
+		el.className = (' ' + el.className + ' ')
+			.replace(new RegExp('(?:^|\\s)' + cls + '(?:\\s|$)', 'g'), ' ')
+			.replace(/\s+/g, ' ')
+			.replace(/^\s+|\s+$/g, '');
+	}
+
+	function trim(str) {
+		return String(str == null ? '' : str).replace(/^\s+|\s+$/g, '');
+	}
+
+	function escapeHtml(text) {
+		return String(text == null ? '' : text)
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#39;');
+	}
+
+	function addCSS(css) {
+		var style = document.createElement('style');
+		style.type = 'text/css';
+		if (style.styleSheet) {
+			style.styleSheet.cssText = css;
+		} else {
+			style.appendChild(document.createTextNode(css));
+		}
+		document.getElementsByTagName('head')[0].appendChild(style);
+	}
+
+	function fireEvent(el, type) {
+		var ev;
+		if (!el || !document.createEvent) {
+			return;
+		}
+		ev = document.createEvent('HTMLEvents');
+		ev.initEvent(type, true, true);
+		el.dispatchEvent(ev);
+	}
+
+	function closestByAttr(node, attr, stopAt) {
+		while (node && node !== stopAt) {
+			if (node.getAttribute && node.getAttribute(attr) != null) {
+				return node;
+			}
+			node = node.parentNode;
+		}
+		return null;
+	}
+
+	function getOverlay() {
+		return document.getElementById(OVERLAY_ID);
+	}
+
+	function closeOverlay() {
+		var overlay = getOverlay();
+		if (overlay && overlay.parentNode) {
+			overlay.parentNode.removeChild(overlay);
+		}
+	}
+
+	function toggleOverlayHidden(force) {
+		var overlay = getOverlay();
+		if (!overlay) {
+			return;
+		}
+		if (typeof force === 'boolean') {
+			if (force) {
+				addClass(overlay, 'tbx-is-hidden');
+			} else {
+				removeClass(overlay, 'tbx-is-hidden');
+			}
+			return;
+		}
+		if (hasClass(overlay, 'tbx-is-hidden')) {
+			removeClass(overlay, 'tbx-is-hidden');
+		} else {
+			addClass(overlay, 'tbx-is-hidden');
+		}
+	}
+
+	function isTransparentColor(value) {
+		value = String(value || '').toLowerCase();
+		return !value || value === 'transparent' || value === 'rgba(0, 0, 0, 0)' || value === 'rgba(0,0,0,0)';
+	}
+
+	function readVarFromElement(el, names) {
+		var style, i, v;
+		if (!el) {
+			return '';
+		}
+		style = window.getComputedStyle(el);
+		for (i = 0; i < names.length; i++) {
+			v = trim(style.getPropertyValue(names[i]) || '');
+			if (v) {
+				return v;
+			}
+		}
+		return '';
+	}
+
+	function readBgFromElement(el) {
+		var style, bg;
+		if (!el) {
+			return '';
+		}
+		style = window.getComputedStyle(el);
+		bg = trim(style.backgroundColor || '');
+		if (!isTransparentColor(bg)) {
+			return bg;
+		}
+		bg = trim(style.background || '');
+		if (bg && !/transparent/i.test(bg)) {
+			return bg;
+		}
+		return '';
+	}
+
+	function readColorFromElement(el) {
+		var style, c;
+		if (!el) {
+			return '';
+		}
+		style = window.getComputedStyle(el);
+		c = trim(style.color || '');
+		if (c) {
+			return c;
+		}
+		return '';
+	}
+
+	function getPageTheme() {
+		var candidates, i, el, bg, color, varsBg, varsColor;
+
+		candidates = [
+			document.querySelector('.page'),
+			document.querySelector('#content'),
+			document.querySelector('.mw-body'),
+			document.body,
+			document.documentElement
+		];
+
+		bg = '';
+		color = '';
+
+		varsBg = [
+			'--theme-page-background-color',
+			'--theme-body-background-color',
+			'--theme-content-background-color',
+			'--background-color',
+			'--page-background-color'
+		];
+
+		varsColor = [
+			'--theme-page-text-color',
+			'--theme-body-text-color',
+			'--theme-content-text-color',
+			'--color-text',
+			'--text-color'
+		];
+
+		for (i = 0; i < candidates.length; i++) {
+			el = candidates[i];
+			bg = readVarFromElement(el, varsBg);
+			if (bg && !isTransparentColor(bg)) {
+				break;
+			}
+			bg = readBgFromElement(el);
+			if (bg && !isTransparentColor(bg)) {
+				break;
+			}
+			bg = '';
+		}
+
+		for (i = 0; i < candidates.length; i++) {
+			el = candidates[i];
+			color = readVarFromElement(el, varsColor);
+			if (color) {
+				break;
+			}
+			color = readColorFromElement(el);
+			if (color) {
+				break;
+			}
+			color = '';
+		}
+
+		if (!bg || isTransparentColor(bg)) {
+			bg = '#111111';
+		}
+		if (!color) {
+			color = '#e6e6e6';
+		}
+
+		return {
+			bg: bg,
+			color: color
+		};
+	}
+
+	function indexOfTopLevelChar(str, targetChar) {
+		var i, ch, next1;
+		var braceDepth = 0;
+		var bracketDepth = 0;
+		var parenDepth = 0;
+		var quote = '';
+
+		str = String(str == null ? '' : str);
+
+		for (i = 0; i < str.length; i++) {
+			ch = str.charAt(i);
+			next1 = str.charAt(i + 1);
+
+			if (quote) {
+				if (ch === quote) {
+					quote = '';
+				} else if (ch === '\\' && next1) {
+					i++;
+				}
+				continue;
+			}
+
+			if (ch === '"' || ch === '\'') {
+				quote = ch;
+				continue;
+			}
+
+			if (ch === '{' && next1 === '{') {
+				braceDepth++;
+				i++;
+				continue;
+			}
+			if (ch === '}' && next1 === '}' && braceDepth > 0) {
+				braceDepth--;
+				i++;
+				continue;
+			}
+			if (ch === '[' && next1 === '[') {
+				bracketDepth++;
+				i++;
+				continue;
+			}
+			if (ch === ']' && next1 === ']' && bracketDepth > 0) {
+				bracketDepth--;
+				i++;
+				continue;
+			}
+			if (ch === '(') {
+				parenDepth++;
+				continue;
+			}
+			if (ch === ')' && parenDepth > 0) {
+				parenDepth--;
+				continue;
+			}
+
+			if (ch === targetChar && braceDepth === 0 && bracketDepth === 0 && parenDepth === 0) {
+				return i;
+			}
+		}
+
+		return -1;
+	}
+
+	function splitTopLevel(str, sepChar) {
+		var out = [];
+		var buf = '';
+		var i, ch, next1;
+		var braceDepth = 0;
+		var bracketDepth = 0;
+		var parenDepth = 0;
+		var quote = '';
+
+		str = String(str == null ? '' : str);
+
+		for (i = 0; i < str.length; i++) {
+			ch = str.charAt(i);
+			next1 = str.charAt(i + 1);
+
+			if (quote) {
+				buf += ch;
+				if (ch === quote) {
+					quote = '';
+				} else if (ch === '\\' && next1) {
+					i++;
+					buf += next1;
+				}
+				continue;
+			}
+
+			if (ch === '"' || ch === '\'') {
+				quote = ch;
+				buf += ch;
+				continue;
+			}
+
+			if (ch === '{' && next1 === '{') {
+				braceDepth++;
+				buf += '{{';
+				i++;
+				continue;
+			}
+			if (ch === '}' && next1 === '}' && braceDepth > 0) {
+				braceDepth--;
+				buf += '}}';
+				i++;
+				continue;
+			}
+			if (ch === '[' && next1 === '[') {
+				bracketDepth++;
+				buf += '[[';
+				i++;
+				continue;
+			}
+			if (ch === ']' && next1 === ']' && bracketDepth > 0) {
+				bracketDepth--;
+				buf += ']]';
+				i++;
+				continue;
+			}
+			if (ch === '(') {
+				parenDepth++;
+				buf += ch;
+				continue;
+			}
+			if (ch === ')' && parenDepth > 0) {
+				parenDepth--;
+				buf += ch;
+				continue;
+			}
+
+			if (ch === sepChar && braceDepth === 0 && bracketDepth === 0 && parenDepth === 0) {
+				out.push(trim(buf));
+				buf = '';
+				continue;
+			}
+
+			buf += ch;
+		}
+
+		out.push(trim(buf));
+		return out;
+	}
+
+	function sanitizeInlineHtml(html) {
+		var container = document.createElement('div');
+		var allowed = {
+			A: 1,
+			BR: 1,
+			SPAN: 1,
+			B: 1,
+			I: 1,
+			EM: 1,
+			STRONG: 1,
+			SMALL: 1,
+			BIG: 1,
+			CODE: 1,
+			U: 1,
+			SUB: 1,
+			SUP: 1
+		};
+		var nodes, i, el, tag, attrs, j, attr, name, value;
+
+		container.innerHTML = String(html == null ? '' : html);
+		nodes = container.getElementsByTagName('*');
+
+		for (i = nodes.length - 1; i >= 0; i--) {
+			el = nodes[i];
+			tag = el.tagName ? el.tagName.toUpperCase() : '';
+
+			if (!allowed[tag]) {
+				while (el.firstChild) {
+					el.parentNode.insertBefore(el.firstChild, el);
+				}
+				if (el.parentNode) {
+					el.parentNode.removeChild(el);
+				}
+				continue;
+			}
+
+			attrs = el.attributes;
+			for (j = attrs.length - 1; j >= 0; j--) {
+				attr = attrs[j];
+				name = attr.name.toLowerCase();
+				value = String(attr.value || '');
+
+				if (/^on/i.test(name)) {
+					el.removeAttribute(attr.name);
+					continue;
+				}
+				if ((name === 'href' || name === 'src') && /^\s*javascript:/i.test(value)) {
+					el.removeAttribute(attr.name);
+					continue;
+				}
+
+				if (tag === 'A') {
+					if (name !== 'href' && name !== 'title' && name !== 'class' && name !== 'target' && name !== 'rel' && name !== 'style' && name.indexOf('data-') !== 0 && name.indexOf('aria-') !== 0) {
+						el.removeAttribute(attr.name);
+					}
+				} else if (tag === 'SPAN') {
+					if (name !== 'class' && name !== 'style' && name.indexOf('data-') !== 0 && name.indexOf('aria-') !== 0) {
+						el.removeAttribute(attr.name);
+					}
+				} else {
+					if (name !== 'class' && name !== 'style' && name.indexOf('data-') !== 0 && name.indexOf('aria-') !== 0) {
+						el.removeAttribute(attr.name);
+					}
+				}
+			}
+		}
+
+		return container.innerHTML;
+	}
+
+	function renderWikiText(text) {
+		var html = escapeHtml(String(text == null ? '' : text));
+		html = html.replace(/'''''([\s\S]+?)'''''/g, '<strong><em>$1</em></strong>');
+		html = html.replace(/'''([\s\S]+?)'''/g, '<strong>$1</strong>');
+		html = html.replace(/''([\s\S]+?)''/g, '<em>$1</em>');
+		html = html.replace(/\[\[([^\]\|]+)\|([^\]]+)\]\]/g, '<a href="#" class="tbx-link">$2</a>');
+		html = html.replace(/\[\[([^\]]+)\]\]/g, '<a href="#" class="tbx-link">$1</a>');
+		html = html.replace(/\n/g, '<br>');
+		return html;
+	}
+
+	function headingId(text) {
+		var s = trim(text || '');
+		s = s.replace(/\s+/g, '_');
+		s = s.replace(/[^\w\u0400-\u04FF\-_.:]/g, '');
+		if (!s) {
+			s = 'section';
+		}
+		return s;
+	}
+
+	function parseTemplate(raw) {
+		var text = String(raw == null ? '' : raw).trim();
+		var inner, parts, name, params, i, p, eqIndex, key, value;
+
+		if (text.indexOf('{{') === 0) {
+			text = text.replace(/^\{\{/, '').replace(/\}\}\s*$/, '');
+		}
+
+		inner = text;
+		parts = splitTopLevel(inner, '|');
+		name = trim(parts.shift() || '');
+		params = [];
+
+		for (i = 0; i < parts.length; i++) {
+			p = parts[i];
+			eqIndex = indexOfTopLevelChar(p, '=');
+			if (eqIndex !== -1) {
+				key = trim(p.slice(0, eqIndex));
+				value = trim(p.slice(eqIndex + 1));
+			} else {
+				key = String(params.length + 1);
+				value = trim(p);
+			}
+			params.push({
+				key: key,
+				value: value
+			});
+		}
+
+		return {
+			name: name || 'Шаблон',
+			params: params,
+			raw: raw
+		};
+	}
+
+	function serializeTemplate(tpl) {
+		var out = ['{{' + trim(tpl.name || 'Шаблон')];
+		var i, p;
+
+		for (i = 0; i < tpl.params.length; i++) {
+			p = tpl.params[i];
+			if (/^\d+$/.test(trim(p.key || ''))) {
+				out.push(trim(p.value || ''));
+			} else {
+				out.push(trim(p.key || '') + '=' + (p.value == null ? '' : String(p.value)));
+			}
+		}
+		out.push('}}');
+		return out.join('|');
+	}
+
+	function parseBlockFromRaw(raw) {
+		var text = String(raw == null ? '');
+		var trimmed = trim(text);
+		var m, items, lines, i, line;
+
+		if (!trimmed) {
+			return {
+				type: 'text',
+				raw: '',
+				text: ''
+			};
+		}
+
+		if (trimmed.indexOf('{{') === 0 && /\}\}\s*$/.test(trimmed)) {
+			return {
+				type: 'template',
+				raw: text,
+				template: parseTemplate(text)
+			};
+		}
+
+		m = trimmed.match(/^(\={2,6})\s*(.*?)\s*\1$/);
+		if (m && trimmed.indexOf('\n') === -1) {
+			return {
+				type: 'heading',
+				raw: text,
+				level: m[1].length,
+				text: trim(m[2] || '')
+			};
+		}
+
+		if (/^(?:\s*[\*\#;:]\s+.*(?:\n|$))+$/m.test(text)) {
+			lines = text.split(/\r?\n/);
+			items = [];
+			for (i = 0; i < lines.length; i++) {
+				line = lines[i].replace(/^\s*[\*\#;:]\s+/, '');
+				items.push(line);
+			}
+			return {
+				type: 'list',
+				raw: text,
+				items: items
+			};
+		}
+
+		return {
+			type: 'text',
+			raw: text,
+			text: text
+		};
+	}
+
+	function parseBlocks(content) {
+		var text = String(content == null ? '');
+		var lines = text.split(/\r?\n/);
+		var blocks = [];
+		var textBuffer = [];
+		var i, line, m, tplLines, depth;
+		var currentList = false, listLines = [];
+
+		function flushText() {
+			var raw;
+			if (!textBuffer.length) {
+				return;
+			}
+			raw = textBuffer.join('\n');
+			blocks.push(parseBlockFromRaw(raw));
+			textBuffer = [];
+		}
+
+		function flushList() {
+			var raw;
+			if (!currentList) {
+				return;
+			}
+			raw = listLines.join('\n');
+			blocks.push(parseBlockFromRaw(raw));
+			listLines = [];
+			currentList = false;
+		}
+
+		for (i = 0; i < lines.length; i++) {
+			line = lines[i];
+
+			if (trim(line) === '') {
+				if (currentList) {
+					flushList();
+				}
+				textBuffer.push(line);
+				continue;
+			}
+
+			if (/^\s*\{\{/.test(line)) {
+				flushText();
+				flushList();
+
+				tplLines = [line];
+				depth = (line.match(/\{\{/g) || []).length - (line.match(/\}\}/g) || []).length;
+
+				while (depth > 0 && i + 1 < lines.length) {
+					i++;
+					line = lines[i];
+					tplLines.push(line);
+					depth += (line.match(/\{\{/g) || []).length;
+					depth -= (line.match(/\}\}/g) || []).length;
+				}
+
+				blocks.push(parseBlockFromRaw(tplLines.join('\n')));
+				continue;
+			}
+
+			m = line.match(/^\s*(\={2,6})\s*(.*?)\s*\1\s*$/);
+			if (m && textBuffer.join('').trim() !== '') {
+				flushText();
+				flushList();
+				blocks.push(parseBlockFromRaw(line));
+				continue;
+			}
+
+			if (/^\s*[\*\#;:]\s+/.test(line)) {
+				flushText();
+				if (!currentList) {
+					listLines = [];
+					currentList = true;
+				}
+				listLines.push(line);
+				continue;
+			}
+
+			if (currentList) {
+				flushList();
+			}
+
+			textBuffer.push(line);
+		}
+
+		flushText();
+		flushList();
+
+		if (!blocks.length) {
+			blocks.push(parseBlockFromRaw(''));
+		}
+
+		return blocks;
+	}
+
+	function serializeBlocks(blocks) {
+		var out = [];
+		var i;
+		for (i = 0; i < blocks.length; i++) {
+			out.push(String(blocks[i].raw == null ? '' : blocks[i].raw));
+		}
+		return out.join('\n');
+	}
+
+	function parseTabber(source) {
+		var text = String(source == null ? '' );
+		var match = text.match(/^([\s\S]*?)(<tabber\b[^>]*>)([\s\S]*?)(<\/tabber>)([\s\S]*)$/i);
+		var prefix = '';
+		var openTag = '<tabber>';
+		var inner = text;
+		var closeTag = '</tabber>';
+		var suffix = '';
+		var wrapped = false;
+		var lines, tabs = [];
+		var current = null;
+		var braceDepth = 0;
+		var i, line, header, content;
+
+		if (match) {
+			prefix = match[1] || '';
+			openTag = match[2] || '<tabber>';
+			inner = match[3] || '';
+			closeTag = match[4] || '</tabber>';
+			suffix = match[5] || '';
+			wrapped = true;
+		}
+
+		lines = inner.split(/\r?\n/);
+
+		function pushCurrent() {
+			if (!current) {
+				return;
+			}
+			content = current.lines.join('\n').replace(/\s+$/, '');
+			tabs.push({
+				title: trim(current.title || '') || ('Tab ' + (tabs.length + 1)),
+				markerPrefix: !!current.markerPrefix,
+				blocks: parseBlocks(content)
+			});
+		}
+
+		for (i = 0; i < lines.length; i++) {
+			line = lines[i];
+
+			if (braceDepth === 0) {
+				header = line.match(/^\s*(\|-\|\s*)?([^\n=]+?)\s*=\s*(.*)$/);
+				if (header && !/^\s*(\{\{|\[\[|\|)/.test(header[2])) {
+					pushCurrent();
+					current = {
+						title: trim(header[2] || ''),
+						lines: [],
+						markerPrefix: !!header[1]
+					};
+					if (typeof header[3] === 'string' && header[3].length) {
+						current.lines.push(header[3]);
+					}
+					braceDepth += (line.match(/\{\{/g) || []).length;
+					braceDepth -= (line.match(/\}\}/g) || []).length;
+					if (braceDepth < 0) {
+						braceDepth = 0;
+					}
+					continue;
+				}
+			}
+
+			if (!current) {
+				current = {
+					title: 'Tab ' + (tabs.length + 1),
+					lines: [],
+					markerPrefix: true
+				};
+			}
+
+			current.lines.push(line);
+
+			braceDepth += (line.match(/\{\{/g) || []).length;
+			braceDepth -= (line.match(/\}\}/g) || []).length;
+			if (braceDepth < 0) {
+				braceDepth = 0;
+			}
+		}
+
+		pushCurrent();
+
+		if (!tabs.length) {
+			tabs.push({
+				title: 'Tab 1',
+				markerPrefix: true,
+				blocks: [parseBlockFromRaw('')]
+			});
+		}
+
+		return {
+			wrapped: wrapped,
+			prefix: prefix,
+			openTag: openTag,
+			closeTag: closeTag,
+			suffix: suffix,
+			tabs: tabs
+		};
+	}
+
+	function serializeTabber(state) {
+		var parts = [];
+		var i, tab;
+
+		for (i = 0; i < state.tabs.length; i++) {
+			tab = state.tabs[i];
+			parts.push((tab.markerPrefix ? '|-|' : '') + trim(tab.title || ('Tab ' + (i + 1))) + '=\n' + serializeBlocks(tab.blocks || [parseBlockFromRaw('')]));
+		}
+
+		if (state.wrapped) {
+			return (state.prefix || '') + (state.openTag || '<tabber>') + '\n' + parts.join('\n') + '\n' + (state.closeTag || '</tabber>') + (state.suffix || '');
+		}
+
+		return parts.join('\n');
+	}
+
+	function moveArrayItem(arr, from, to) {
+		var item;
+		if (!arr || from === to || from < 0 || to < 0 || from >= arr.length || to >= arr.length) {
+			return;
+		}
+		item = arr.splice(from, 1)[0];
+		arr.splice(to, 0, item);
+	}
+
+	/* ... script intentionally copied as provided by user ... */
+
+}());
